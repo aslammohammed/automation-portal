@@ -1,0 +1,213 @@
+extends layout
+block content
+  .row
+    .col-md-12
+      h3 Continous Delivery Dashboard
+      form#formId(action='/box',method='POST', enctype='form-data')
+        .col-md-2 
+          input#datepicker(type='text',value='#{dat}',name='datetext',placeholder= '#{dat}',style='margin:10px;padding:8px')
+          p.category
+        .col-md-2
+          p.category
+        .col-md-2
+          select(name='lov', onchange='this.form.submit()',style='margin:10px;padding:8px')
+            each box in boxes
+              option(value=box, selected=(selectedBox==box)) #{box}
+      .card#graph
+          .card-header
+            h4.card-title Daily box Run- #{selectedBox}
+          .card-plain
+            .ct-chart#dailyChart(style='height:360px')
+      .card#graph
+          .card-header
+            h4.card-title Weeky box Run- #{selectedBox}
+          .card-plain
+            .ct-chart#weeklyChart(style='height:360px')
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit();
+    }});
+
+    
+  script.
+    //bar chart
+    
+    var title = !{JSON.stringify(title)};
+    //var date = !{JSON.stringify(date)};
+    //var pass = !{JSON.stringify(pass)};
+    //var fail = !{JSON.stringify(fail)};
+    //var total = !{JSON.stringify(total)};
+    //var dailyDataString = !{JSON.stringify(dailyData)};
+    var response = !{JSON.stringify(response)};
+    response = JSON.parse(response);
+    console.log("response:"+response);
+    //date = date.replace(/'/g, '"');
+    //date = JSON.parse("["+date+"]");
+    //console.log(date);
+   
+    //pass = JSON.parse("["+pass+"]");
+    //console.log(pass);
+
+    //fail = JSON.parse("["+fail+"]");
+    //console.log(fail);
+
+    //total = JSON.parse("["+total+"]");
+    //console.log(total);
+
+    var dailyDate = [];
+    var dailyPass = [];
+    var dailyFail = [];
+    var dailyTotal = [];
+
+    var dailyData = response.dailyData;
+    console.log("DD:"+dailyData);
+    for(var i=dailyData.length-1;i>=0;i--){
+        entry = dailyData[i];
+        console.log("entry:"+entry);
+        dailyDate.push(entry.date);
+        dailyPass.push(entry.pass);
+        dailyFail.push(entry.fail);
+        dailyTotal.push(entry.total);
+    }
+
+    var weeklyDate = [];
+    var weeklyPass = [];
+    var weeklyFail = [];
+    var weeklyTotal = [];
+
+    var weeklyData = response.weeklyData;
+    console.log("WD:"+weeklyData);
+    for(var i=0;i<=weeklyData.length;i++){
+        entry = weeklyData[i];
+        console.log("entry:"+entry);
+        weeklyDate.push(entry.week);
+        weeklyPass.push(entry.pass);
+        weeklyFail.push(entry.fail);
+        weeklyTotal.push(entry.total);
+    }
+
+
+    /*
+        for (var entry in dailyData){
+          console.log("entry:"+entry);
+          dailyDate.push(entry.date);
+          dailyPass.push(entry.pass);
+          dailyFail.push(entry.fail);
+          dailyTotal.push(entry.total);
+        }
+        */
+
+
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+    var dailyChart = echarts.init(document.getElementById('dailyChart'));
+    var weeklyChart = echarts.init(document.getElementById('weeklyChart'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: '{c}',
+            fontSize: 16,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    function setChartOption(date,pass,fail,total){
+      var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data :date,
+                axisLabel:{rotate:20}
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total
+            }
+        ]
+      };
+
+      return option;
+    }
+    
+    dailyChart.setOption(setChartOption(dailyDate,dailyPass,dailyFail,dailyTotal));
+    weeklyChart.setOption(setChartOption(weeklyDate,weeklyPass,weeklyFail,weeklyTotal));
+
+    

@@ -1,0 +1,1190 @@
+extends layout
+block content
+  .row
+    .col-md-12
+      .col-md-6
+        h3 Continous Delivery Dashboard
+  .row
+    .col-md-12
+      .col-md-3
+        .col-lg-3.col-md-6.col-sm-6
+        .card.card-stats
+          .card-header(data-background-color='blue')
+            i.material-icons content_copy
+          .card-content
+            p.category Total Scripts (Current Month)
+            h3.title
+              | #{data.velocity[3].total_scripts}
+              //small scripts
+      .col-md-3
+        .col-lg-3.col-md-6.col-sm-6
+        .card.card-stats
+          .card-header(data-background-color='orange')
+            i.material-icons content_copy
+          .card-content
+            p.category Total Scripts (Prev Month)
+            h3.title
+              | #{data.velocity[2].total_scripts}
+              //small scripts
+      .col-md-3
+        .col-lg-3.col-md-6.col-sm-6
+        .card.card-stats
+          .card-header(data-background-color='green')
+            i.material-icons computer
+          .card-content
+            p.category Automation Server count
+            h3.title #{count}
+              //small servers
+      .col-md-3
+        .col-lg-3.col-md-6.col-sm-6
+        .card.card-stats
+          .card-header(data-background-color='red')
+            i.material-icons cloud_done
+          .card-content
+            p.category EIT Test Environment
+            h3.title #{env}
+  .row
+    .col-md-12
+      .card
+        .card-header
+          h4.card-title Automation Script Delivery Trend 
+          //p.category Here is a subtitle for this table
+        .row
+          .col-md-12
+            .col-md-8
+              .row
+                .col-md-12
+                  .card#graphScriptDelivery
+                    .card-chart
+                      .ct-chart#scriptDeliveryLineChart(style='height:340px')   
+              //.row
+                .col-md-12
+                  .card.card-content.table-responsive.table-full-width#tableScriptDelivery
+                    table.table
+                      thead.text-danger
+                        th Timeline
+                        th Planned
+                        th Actual     
+                        tbody#month
+              .row
+                .col-md-12
+                  .card
+                    .card-chart
+                      .ct-chart
+                        table.table.table-responsive
+                          tbody
+                            tr
+                              th Timeline
+                              -for(var i in data.scriptDeliveryData)
+                                if i > 5
+                                  td #{data.scriptDeliveryData[data.scriptDeliveryData.length-i-1].month}
+                            tr
+                              th Planned
+                              -for(var i in data.scriptDeliveryData)
+                                if i > 5
+                                  td #{data.scriptDeliveryData[data.scriptDeliveryData.length- i-1].planned}
+                            tr
+                              th Actual
+                              -for(var i in data.scriptDeliveryData)
+                                if i > 5
+                                  td #{data.scriptDeliveryData[data.scriptDeliveryData.length- i-1].actual}
+            .col-md-4
+              .card
+                  h4.card-title
+                    u Notes
+                  div.cover-spin#notesLoader(style = "display:none")     
+                  .card-content#notes(style="{white-space:pre-wrap;")
+                    
+                    div#frmNotes(style = "display:none")
+                        form(action='/notes',method='POST', enctype='form-data')
+                          textarea.form-control#txtNotes(name="AUTOMATION_SCRIPT_DELIVERY_TREND", cols="30", rows="5")
+                    div#list 
+                      ul#notesList
+                        -var divName = "AUTOMATION_SCRIPT_DELIVERY_TREND"
+                        -for(var i in data.notes)
+                          !{data.notes[i].name=="AUTOMATION_SCRIPT_DELIVERY_TREND"?data.notes[i].content:''}
+                    .card-profile
+                      button.btn.btnEdit#btnEdit Edit
+      
+  
+  .row
+    .col-md-12#integrationDistribution
+      .card
+        .card-header
+          h4.card-title Integration Test Matrix
+        .row
+          .col-md-12
+            .col-md-9
+              .card
+                h4.card-title Interface Coverage 
+                .ct-chart#integrationDistributionBar(style='height:300px')
+            .col-md-3
+              .card
+                h4.card-title Product Coverage
+                h5.card-title#prodCovMsg 
+                .ct-chart#productCoverageBar(style='height:300px')
+                
+  .row
+    .col-md-12
+      .card#migrationHistory
+        .card-header
+          h4.card-title Migration History
+        .row
+          .col-md-12
+            div.dropdown
+              button.btn.dropdown-toggle#btnEnv( type="button",data-toggle="dropdown",aria-expanded="true") #{data.migrationData.migrationHistory[0].environment} 
+                b.caret
+              ul.dropdown-menu
+                -for(var prop in data.migrationData.migrationHistory)
+                  li(class='')
+                    a.envDropdown #{data.migrationData.migrationHistory[prop].environment}        
+        .row
+          .col-md-12
+            .col-md-5
+              .card
+                h4.card-title Month wise Trend
+                .ct-chart#migrationHistoryLineChart(style='height:300px')
+            .col-md-4
+              .card
+                h4.card-title Product Trend
+                .ct-chart#migrationHistoryDonutChart(style='height:300px')
+            .col-md-3
+              .card#frmMigration(style="height:50px;overflow:hidden;")
+                  h4.card-title
+                    a#migrationData   
+                      p Add
+                  .card-content
+                        .row
+                          .col-md-6
+                            .form-group.label-floating
+                              label.control-label Environment
+                              select.form-control#environment(name='environment')
+                                -for(var i in data.envs)
+                                  option.dropdown(value = data.envs[i].id) #{data.envs[i].name}
+                                  
+                          .col-md-6
+                            .form-group.label-floating
+                              label.control-label Product
+                              select.form-control#product(name='product')
+                                -for(var i in data.envs)
+                                  option.dropdown(value = data.products[i].id) #{data.products[i].name}
+                        .row
+                          .col-md-6
+                            .form-group.label-floating
+                              label.control-label Version
+                              input.form-control#version(type='text')
+                          .col-md-6
+                            .form-group.label-floating
+                              label.control-label Migration Date
+                              input.form-control#date(type='date')
+                        .row
+                          .col-md-12
+                            .form-group.label-floating
+                              label.control-label Comments
+                              textarea.form-control#comments(rows='1')
+                        button.btn.pull-right#btnMigration Add Data
+              .card
+                  h4.card-title
+                    u Notes
+                  div.cover-spin#notesLoader(style = "display:none")     
+                  .card-content#notes(style="{white-space:pre-wrap;")
+                    
+                    div#frmNotes(style = "display:none")
+                        form(action='/notes',method='POST', enctype='form-data')
+                          textarea.form-control#txtNotes(name="MIGRATION_HISTORY", cols="30", rows="5")
+                    div#list 
+                      ul#notesList
+                        
+                        -for(var i in data.notes)
+                          !{data.notes[i].name=="MIGRATION_HISTORY"?data.notes[i].content:''}
+                    .card-profile
+                      button.btn.btnEdit#btnEdit Edit
+              
+  .row
+    .col-md-12
+      .card#ExecVelocity
+        .card-header
+          h4.card-title Execution Velocity 
+        .row
+          .col-md-12
+            .col-md-6              
+              .card
+                .ct-chart#execVelocityBarChart(style='height:490px')   
+            .col-md-6
+              .card
+                .row
+                  .col-md-12
+                    .col-md-6
+                      .card
+                        h4.card-title #{data.velocity[3].month}
+                        .ct-chart#dailySalesPieChart1(style='height:150px')                                     
+                    .col-md-6
+                      .card  
+                        h4.card-title #{data.velocity[2].month}
+                        .ct-chart#dailySalesPieChart2(style='height:150px')                                       
+                .row(style='display:none')
+                  .col-md-12
+                    .col-md-6
+                      .card
+                        h4.card-title #{data.velocity[1].month}
+                        .ct-chart#dailySalesPieChart3(style='height:150px')
+                    .col-md-6
+                      .card
+                        h4.card-title #{data.velocity[0].month}
+                        .ct-chart#dailySalesPieChart4(style='height:150px')              
+              .card
+                  h4.card-title
+                    u Notes
+                  div.cover-spin#notesLoader(style = "display:none")     
+                  .card-content#notes(style="{white-space:pre-wrap;")
+                    
+                    div#frmNotes(style = "display:none")
+                        form(action='/notes',method='POST', enctype='form-data')
+                          textarea.form-control#txtNotes(name="EXECUTION_VELOCITY", cols="30", rows="5")
+                    div#list 
+                      ul#notesList   
+                        -for(var i in data.notes)
+                          !{data.notes[i].name=="EXECUTION_VELOCITY"?data.notes[i].content:''}
+                    .card-profile
+                      button.btn.btnEdit#btnEdit Edit
+  .row
+    .col-md-12
+      .card#manualExecVelocity
+        .card-header
+          h4.card-title Manual Testing Velocity 
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                .card-chart
+                    table.table.table-responsive
+                      thead
+                        tr
+                          th Month
+                          th Test Authored
+                          th Test Planned 
+                          th Test Executed
+                          th Passed
+                          th Failed
+                          th Pass %
+                          th Fail %
+                          th Defects
+                      tbody
+                        -for(var i in data.manualTestData)
+                          if i < 3
+                            tr
+                              td !{data.manualTestData[i].MONTH}
+                              td !{data.manualTestData[i].TEST_AUTHORED}
+                              td !{data.manualTestData[i].TEST_PLANNED}
+                              td !{data.manualTestData[i].TEST_EXECUTED}
+                              - var passed = data.manualTestData[i].PASSED
+                              - var failed = data.manualTestData[i].FAILED
+                              - var total = passed+ failed
+                              td !{passed}
+                              td !{failed}
+                              td !{ Math.floor((passed/total)*100)}
+                              td !{Math.floor((failed/total)*100)}
+                              td !{data.manualTestData[i].DEFECTS}
+        .row
+          .col-md-12
+            - var status = {"NOT STARTED":"RED","IN PROGRESS":"YELLOW","COMPLETED":"GREEN"}
+            - var month1 = data.executionPlanData[0]
+            - var month2 = data.executionPlanData[1]
+            if  month1
+              .col-md-6
+                .card
+                  h4.card-title CIT Planning - !{month1.month} 
+                  .card-chart
+                      table.table.table-responsive
+                        thead
+                          tr
+                            th Integration
+                            th Status
+                            th 
+                          tr
+                        tbody
+                        
+                          -for(var i in month1.planningData)
+                            - var entry = month1.planningData[i]
+                            tr
+                              td !{entry.integration}
+                              td(bgcolor = status[entry.status]) !{entry.status}
+                                //select.form-control.status( name="status", value =entry.status )
+                                  option(value="COMPLETED",bgcolor = status[entry.status]) COMPLETED
+                                  option(value="IN PROGRESS",bgcolor = status[entry.status]) IN PROGRESS
+                                  option(value="NOT STARTED",bgcolor = status[entry.status]) NOT STARTED 
+                              //td.td-actions(style="display:block")
+                                button.btn.btn-primary
+                                  i.material-icons edit
+            if  month2          
+              .col-md-6
+                .card
+                    h4.card-title CIT Planning - !{month2.month} 
+                    .card-chart
+                      .ct-chart
+                        table.table.table-responsive
+                          thead
+                            tr
+                              th Integration
+                              th Status
+                            tr
+                          tbody
+                            -for(var i in month2.planningData)
+                              - var entry = month2.planningData[i]
+                              tr
+                                td !{entry.integration}
+                                td(bgcolor = status[entry.status]) !{entry.status}
+                                  //select.form-control.status( name="status", value =entry.status )
+                                    option(value="COMPLETED") COMPLETED
+                                    option(value="IN PROGRESS") IN PROGRESS
+                                    option(value="NOT STARTED") NOT STARTED
+  .row
+    .col-md-12
+      .card#BugDBReports
+        .card-header
+          h4.card-title BugDB Reports 
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                h4.card-title Open Defects
+                .ct-chart#productDefectsBar(style='height:300px')
+              
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+
+    $('#datepicker').datepicker({
+      onSelect : function (dateText, inst) {
+      $('#formId').submit();
+      }
+    });
+    var expanded = false;
+    $("#migrationData").click(function() {
+        //console.log('css:'+$('#frmMigration').css());
+        console.log('Expnanded:'+expanded);
+        expanded?$('#frmMigration').css({'height':'50px','overflow':'hidden'}):$('#frmMigration').css('height','350px');
+        expanded=expanded?false:true; 
+        
+    });
+
+    
+    
+  script.
+    //bar chart
+    var title = !{JSON.stringify(title)};
+    var month_name = !{JSON.stringify(month_name)};
+    var pass = !{JSON.stringify(pass)};
+    var fail = !{JSON.stringify(fail)};
+    var total = !{JSON.stringify(total)};
+    var pas_per = !{JSON.stringify(pass_per)};
+    var fail_per = !{JSON.stringify(fail_per)};
+    var avg_it = !{JSON.stringify(avg_it)};
+    var responseData = !{JSON.stringify(data)};
+    var data = responseData;
+    //console.log('migrationData:'+JSON.parse(data.migrationData));
+    month_name = month_name.replace(/'/g, '"');
+    month_name = JSON.parse("["+month_name+"]");
+    console.log(month_name);
+    console.log(month_name[0]);
+
+    pass = JSON.parse("["+pass+"]");
+    console.log(pass);
+
+    fail = JSON.parse("["+fail+"]");
+    console.log(fail);
+
+    total = JSON.parse("["+total+"]");
+    console.log(total);
+    
+    pas_per= JSON.parse("["+pas_per+"]");
+    console.log(pas_per);
+
+    //fail_per= JSON.parse("["+fail_per+"]");
+    //console.log(fail_per);
+
+    avg_it= JSON.parse("["+avg_it+"]");
+    console.log(avg_it);
+
+    
+    var per1=((pass[0]/total[0])*100).toFixed(0);
+    var per2=((pass[1]/total[1])*100).toFixed(0);
+    var per3=((pass[2]/total[2])*100).toFixed(0);
+    var pe1=100-per1;
+    var pe2=100-per2;
+    var pe3=100-per3;
+    per1=per1+'%';
+    per2=per2+'%';
+    per3=per3+'%';
+    pe1=pe1+'%';
+    pe2=pe2+'%';
+    pe3=pe3+'%';
+   
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+    function calculatePercentage(numArray){
+      const arrSum = arr => arr.reduce((a,b) => a + b, 0);
+
+      var total = arrSum(numArray);
+      var perc = [];
+      numArray.forEach(function(item){
+        perc.push(Math.round((item/total *100)));
+      })
+        
+      
+      return perc;
+    }
+    function setShadowBar(chart,xaxisData,dataShadow,data){
+      option = {
+          title: {
+              
+          },
+          xAxis: {
+              data: xaxisData,
+              axisLabel: {
+                  inside: true,
+                  verticalAlign:'center',
+                  rotate:90,
+                  textStyle: {
+                      color: '#fff'
+                  },
+              },
+              axisTick: {
+                  show: false
+              },
+              axisLine: {
+                  show: false
+              },
+              z: 10
+          },
+          yAxis: {
+              axisLine: {
+                  show: false
+              },
+              axisTick: {
+                  show: false
+              },
+              axisLabel: {
+                  textStyle: {
+                      color: '#999'
+                  }
+              }
+          },
+          /*
+          dataZoom: [
+              {
+                  type: 'inside'
+              }
+          ],
+          */
+          series: [
+              { // For shadow
+                  type: 'bar',
+                  itemStyle: {
+                      normal: {color: 'rgba(0,0,0,0.05)'}
+                  },
+                  barGap:'-100%',
+                  barCategoryGap:'40%',
+                  data: dataShadow,
+                  animation: true
+              },
+              {
+                  type: 'bar',
+                  label: {
+                    normal: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                  },
+                  itemStyle: {
+                      normal: {
+                          color: new echarts.graphic.LinearGradient(
+                              0, 0, 0, 1,
+                              [
+                                  {offset: 0, color: '#83bff6'},
+                                  {offset: 0.5, color: '#188df0'},
+                                  {offset: 1, color: '#188df0'}
+                              ]
+                          )
+                      },
+                      emphasis: {
+                          color: new echarts.graphic.LinearGradient(
+                              0, 0, 0, 1,
+                              [
+                                  {offset: 0, color: '#2378f7'},
+                                  {offset: 0.7, color: '#2378f7'},
+                                  {offset: 1, color: '#83bff6'}
+                              ]
+                          )
+                      }
+                  },
+                  data: data
+              }
+          ]
+      };
+      chart.setOption(option);
+    }
+
+    function setBarChartOption(chart,legendData,seriesData,xaxisData,barColor){
+      
+      var option = {
+          color: barColor,
+          tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                  type: 'shadow'
+              }
+          },
+          legend: {
+              data: legendData
+          },
+          toolbox: {
+              show: false,
+              orient: 'vertical',
+              left: 'right',
+              top: 'center',
+              feature: {
+                  mark: {show: true},
+                  dataView: {show: true, readOnly: false},
+                  magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                  restore: {show: true},
+                  saveAsImage: {show: true}
+              }
+          },
+          calculable: true,
+          xAxis: [
+              {
+                  type: 'category',
+                  axisTick: {show: false},
+                  //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                  data :xaxisData,
+                  axisLabel:{rotate:30,fontSize:10},
+                  height:80
+                }
+
+                  //data : labels            }
+          ],
+          yAxis: [
+              {
+                  type: 'value'
+              }
+          ],
+          series:seriesData
+        };
+      chart.setOption(option);
+    }
+
+    //function to set pie chart option
+
+    function setPieChartOptions(pieChart,legendData, seriesName,seriesData,seriesColor,formatter,radius,labelPosition){
+      pieOption = {
+        title : {
+          
+            //text: seriesName,
+            //subtext: date,
+            //x:'center'
+        },
+        tooltip : {
+           trigger: 'item',
+           formatter: formatter
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: legendData
+        },
+        series : [
+            {
+                name: seriesName,
+                type: 'pie',          
+                radius : radius,
+                label: {
+                  formatter:formatter,
+                    position: labelPosition
+                },
+                labelLine: {
+                normal: {
+                    show: true
+                }
+            },
+                center: ['50%','50%'],
+                data:seriesData,
+                color:seriesColor,
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+      };
+
+      pieChart.setOption(pieOption);
+    }
+    //
+
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+
+    var formatter = "{c}";
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: formatter,
+            fontSize: 12,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    //intgration distribution bar chart
+    var integrationDistributionBar = echarts.init(document.getElementById('integrationDistributionBar'));
+    var ID=data.integrationDistribution;
+    var xaxisData=[];
+    var seriesData=[];
+    var data=[];
+    
+    for(var i=0;i<ID.length;i++){
+      var entry=ID[i];
+      //legendData.push(entry.functionality);
+      xaxisData.push(entry.integrationName);
+        data.push(entry.testcaseCount);
+      }
+    var yMax = 100;
+    var dataShadow = [];
+
+    for (var i = 0; i < data.length; i++) {
+        dataShadow.push(yMax);
+    }
+    setShadowBar(integrationDistributionBar,xaxisData,dataShadow,data);
+    
+    /*      
+      var seriesData= [
+              {
+                  name: 'Scripts',
+                  type: 'bar',
+                  barGap: 0,
+                  label: labelOption,
+                  //data: [320, 332, 301, 334, 390]
+                  data: data
+              }
+          ];
+      
+    
+    console.log('LegendData:'+xaxisData);
+    console.log('SeriesData:'+JSON.stringify(seriesData) );
+    
+    
+    //setPieChartOptions(integrationDistributionPie,legendData,"Integration Distribution",seriesData,seriesColor,formatter);
+    
+    var barColor = ['#0c84eb'];
+    setBarChartOption(integrationDistributionBar,[],seriesData,xaxisData,barColor);
+    */
+
+    
+
+
+    //product coverage
+    var productCoverageBar = echarts.init(document.getElementById('productCoverageBar'));
+    var PC=responseData.productCoverageData;
+
+    var xaxisData=['Total','Integration Tested','Automation Tested'];
+    
+    var data=[PC.total,PC.manual,PC.automation];
+    
+            
+    var seriesData= [
+            {
+                name: 'Products',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: data
+            }
+        ];
+
+    var barColor = ['#48a44c', '#e73d3a', '#0c84eb'];
+    setBarChartOption(productCoverageBar,[],seriesData,xaxisData,barColor);
+
+    //avg exection bar chart
+    var execVelocityBarChart=echarts.init(document.getElementById('execVelocityBarChart'));
+    var avgScriptsData = [];
+    var avgExecTimeData = [];
+    var serverNames = [];
+    var avgExecData=responseData.avgExecData;
+    if(avgExecData.length==0){
+      $("#execVelocity").hide();
+    }
+
+    for(var i=0;i<avgExecData.length;i++){
+      var entry=avgExecData[i];
+      var avgScripts=Math.floor(entry.total/ entry.iterations) ;
+      avgScripts = avgScripts || 0;
+      avgScriptsData.push(avgScripts);
+      var avgExecTime = ((entry.duration/60)/ entry.iterations).toFixed(0);
+      avgExecTime = avgExecTime || 0;
+      avgExecTimeData.push(avgExecTime);
+      serverNames.push(entry.servername);
+    }
+    var legendData=['Scripts', 'Avg Execution Time'];
+    
+    var labelOptionScripts = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: "{c}",
+            fontSize: 12,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+    var labelOptionTime = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: "{c} hr",
+            fontSize: 12,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+    
+    var seriesData= [
+              {
+                  name: 'Scripts',
+                  type: 'bar',
+                  barGap: 0,
+                  label: labelOptionScripts,
+                  //data: [320, 332, 301, 334, 390]
+                  data: avgScriptsData
+              },
+              {
+                  name: 'Avg Execution Time',
+                  type: 'bar',
+                  label: labelOptionTime,
+                  //data: [220, 182, 191, 234, 290]
+                  data: avgExecTimeData
+              }
+          ];
+    var barColor = ['#0c84eb', '#e73d3a'];
+    setBarChartOption(execVelocityBarChart,legendData,seriesData,serverNames,barColor);
+    
+    
+    //percentage calculation
+    var perc = calculatePercentage([pass[0],fail[0]]);
+    pass[0] = perc[0];fail[0]=perc[1]
+    var perc = calculatePercentage([pass[1],fail[1]]);
+    pass[1] = perc[0];fail[1]=perc[1]
+    var perc = calculatePercentage([pass[2],fail[2]]);
+    pass[2] = perc[0];fail[2]=perc[1]
+    var perc = calculatePercentage([pass[3],fail[3]]);
+    pass[3] = perc[0];fail[3]=perc[1]
+    //pie month1
+    var pieChart1 = echarts.init(document.getElementById('dailySalesPieChart1'));
+    var legendData = ['Pass','Fail'];
+    var legendData = [];
+    var seriesName = 'Results';
+    
+    var seriesData = [
+                    {value:pass[0],name:'Pass',color:'green'},
+                    {value:fail[0],name:'Fail'},
+                ];
+                
+    //var seriesData = [4,5,6 ];
+    var seriesColor = ['#48a44c', '#e73d3a'];
+    var formatter = "{c}%";
+    var radius  =  '80%';
+    var labelPosition = 'inner';
+    setPieChartOptions(pieChart1,legendData,seriesName,seriesData,seriesColor,formatter,radius,labelPosition);
+
+    //pie month 2
+    var pieChart2 = echarts.init(document.getElementById('dailySalesPieChart2'));
+    var seriesData = [
+                    {value:pass[1], name:'Pass'},
+                    {value:fail[1], name:'Fail'},
+                ];
+    setPieChartOptions(pieChart2,legendData,seriesName,seriesData,seriesColor,formatter,radius,labelPosition);
+    
+    //pie month 3 
+    var pieChart3 = echarts.init(document.getElementById('dailySalesPieChart3'));
+    var seriesData =[
+                    {value:pass[2], name:'Pass'},
+                    {value:fail[2], name:'Fail'},
+                ] ;
+    setPieChartOptions(pieChart3,legendData,seriesName,seriesData,seriesColor,formatter,radius,labelPosition);
+
+    //pie month 3 
+    var pieChart4 = echarts.init(document.getElementById('dailySalesPieChart4'));
+    var seriesData =[
+                    {value:pass[3], name:'Pass'},
+                    {value:fail[3], name:'Fail'},
+                ] ;
+    setPieChartOptions(pieChart4,legendData,seriesName,seriesData,seriesColor,formatter,radius,labelPosition);
+
+    //script delivery part
+    console.log("Data:"+data);
+    var data = responseData;
+    console.log("Data:"+ JSON.stringify(data));
+    //data = JSON.parse(data);
+
+
+    var month_name = [];
+    var actual = [];
+    var planned = [];
+    var scriptDeliveryData= data.scriptDeliveryData;
+    for(var i=scriptDeliveryData.length-1-6;i>=0;i--){
+        entry = scriptDeliveryData[i];
+        console.log("entry:"+entry);
+        month_name.push(entry.month);
+        actual.push(entry.actual);
+        planned.push(entry.planned);
+    }
+    
+    var myChart = echarts.init(document.getElementById('scriptDeliveryLineChart'));
+    var option = {
+    xAxis: {
+        type: 'category',
+         data : month_name,
+         axisLabel:{rotate:20}         
+        },
+    yAxis: {
+        type: 'value',
+        scale:true
+    },
+     legend: {
+        data:['Actual','Planned']
+    },
+     tooltip : {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            label: {
+                backgroundColor: '#6a7985'
+            }
+        }
+    },
+    series: [{
+        name:'Actual',
+        data:actual,
+        type: 'line',
+        symbol:'diamond',
+        symbolSize:10, 
+        label: {
+                normal: {
+                    show: true,
+                    position: 'top'
+                }
+            },
+    },
+    {   name:'Planned',
+         type: 'line',
+         data:planned,
+         symbol:'rect',
+         symbolSize:10, 
+         label: {
+                normal: {
+                    show: true,
+                    position: 'top'
+                }
+            },
+    }
+    ]
+    };
+    myChart.setOption(option);
+
+    
+
+    //migration history
+    function setMigrationChartForEnv(responseData,env){
+      var migrationHistoryLine = echarts.init(document.getElementById('migrationHistoryLineChart'));
+      var MD=responseData.migrationData.migrationHistory;
+      var xaxisDataMD=[];
+      var seriesDataMD=[];
+      var dataMD=[];
+      console.log('set');
+      console.log(env);
+      for(var i=0;i<MD.length;i++){
+        console.log('set1');
+        var entry=MD[i];
+        console.log(env +'&&'+entry.environment);
+        if(env==entry.environment){
+          console.log('set2');
+          for(var j=0;j<entry.migrationData.length;j++){
+            var subentry=entry.migrationData[j];
+            xaxisDataMD.push(subentry.month);
+            dataMD.push(subentry.migrationCount);
+            var seriesDataMD= [
+                {
+                    name: 'Count',
+                    type: 'line',
+                    label: labelOption,
+                    //data: [320, 332, 301, 334, 390]
+                    data: dataMD
+                }
+            ];
+        
+            console.log('set1');
+            console.log('LegendData:'+xaxisDataMD);
+            console.log('SeriesData:'+JSON.stringify(seriesDataMD) );
+            
+            
+            //setPieChartOptions(integrationDistributionPie,legendData,"Integration Distribution",seriesData,seriesColor,formatter);
+            
+            var barColor = ['#48a44c'];
+            setBarChartOption(migrationHistoryLine,['Migration Count'],seriesDataMD,xaxisDataMD,barColor);
+
+          }
+        }
+      }
+        //legendData.push(entry.functionality)
+      //for donut chatrt
+      var migrationHistoryDonut = echarts.init(document.getElementById('migrationHistoryDonutChart'));
+      var PMD=responseData.migrationData.productHistory;
+      
+      var xaxisDataPMD=[];
+      var seriesDataPMD=[];
+      var dataPMD=[];
+      var labelPostion = 'outside';
+      if(PMD.length<1){
+       //$("<p>Insufficient data</p>").text('#prodCovMsg');
+       $('#prodCovMsg').html("sss");
+      }
+      for(var i=0;i<PMD.length;i++){
+        var entry=PMD[i];
+        if(env==entry.environment){
+          for(var j=0;j<entry.migrationData.length;j++){
+            var subentry=entry.migrationData[j];
+            xaxisDataPMD.push(subentry.product);
+           // dataPMD.push(subentry.migrationCount);
+            var dataEntry={};
+            dataEntry.name= subentry.product;
+            dataEntry.value=subentry.migrationCount;
+            seriesDataPMD.push(dataEntry);
+        
+      
+            console.log('LegendData:'+xaxisDataPMD);
+            console.log('SeriesData:'+JSON.stringify(seriesDataPMD) );
+            
+            
+            //setPieChartOptions(integrationDistributionPie,legendData,"Integration Distribution",seriesData,seriesColor,formatter);
+            
+            var seriesColor = [];
+            var radius  =  ['30%', '50%'];
+            var formatter = "{b} :{c}";
+            //setBarChartOption(migrationHistoryLine,,seriesDataMD,xaxisDataMD,barColor);
+            setPieChartOptions(migrationHistoryDonut,[],"Migration Count",seriesDataPMD,seriesColor,formatter,radius,labelPostion);
+          }
+        }
+      }
+    }
+
+    //migration line chart
+    
+    
+    setMigrationChartForEnv(responseData,responseData.migrationData.migrationHistory[0].environment);
+    
+    //product defects
+    var productDefectsBar = echarts.init(document.getElementById('productDefectsBar'));
+    var BPD=data.bugProductData;
+    var xaxisDataBPD=[];
+    var seriesDataBPD=[];
+    var dataBPD=[];
+    
+    for(var i=0;i<BPD.length;i++){
+      var entry=BPD[i];
+      //legendData.push(entry.functionality);
+      xaxisDataBPD.push(entry.ALIAS);
+        dataBPD.push(entry.DEFECTS);
+      }
+    var yMaxBPD = 12;
+    var dataShadowBPD = [];
+
+    for (var i = 0; i < dataBPD.length; i++) {
+        dataShadowBPD.push(yMaxBPD);
+    }
+    setShadowBar(productDefectsBar,xaxisDataBPD,dataShadowBPD,dataBPD);
+
+    $('.envDropdown').click(function() {
+      console.log('clicked');
+      console.log($('#btnEnv').text());
+      var env=$(this).text().trim();
+      console.log(env);
+      $('#btnEnv').text($(this).text());
+      //function call
+      setMigrationChartForEnv(responseData,env);
+    });
+
+    $('.btnEdit').click(function(e){
+      var btnText = $(this).text().trim();
+      var btn = $(this);
+      var ul = $(this).parent().parent().find('ul');
+      var txtArea = $(this).parent().parent().find('textarea');
+      var formdiv = $(txtArea).closest('div');
+      var loader = $(this).parent().parent().parent().find('.cover-spin');
+      var name = $(txtArea).attr('name');
+       console.log('name:'+name );
+      console.log('formdiv:'+JSON.stringify(formdiv) );
+      console.log('Loader:'+JSON.stringify(loader) );
+      if(btnText=='Edit')
+      {
+        $(this).text("Update");
+        //$('#notesList').hide();
+        $(ul).hide();
+
+        //var list = document.getElementById('notesList').childNodes;
+        var list = $(ul).children();
+        var notesArray = '';
+        for(var i=0;i < list.length; i++) {
+            var arrValue = list[i].innerHTML.trim();
+            //alert(arrValue);
+            arrValue=arrValue||'';
+            notesArray+=arrValue;
+            notesArray+='\n';
+        }
+        $(txtArea).val(notesArray);
+        $(formdiv).fadeIn();
+
+      }else if(btnText=='Update'){
+        var notes = $(txtArea).val();
+        $(formdiv).hide();
+        //$('#notesLoader').fadeIn();
+        $(loader).fadeIn();
+        var notes = notes.split('\n');
+        var list="";
+        notes.forEach(function(value,index,array){
+          if(value!='')
+            list=list+"<li>"+value+"</li>"
+        })
+         console.log("update:"+list);
+        e.preventDefault();
+        /*
+        $.getJSON('http://msp52458.us.oracle.com:3000/dashboard', function(data) {
+          console.log("AJAx:"+data);
+        });
+        */
+        
+        $.ajax({
+          //url: 'http://localhost:3000/notes',
+          url: 'http://msp52458.us.oracle.com:3000/notes',
+          type: 'POST',
+          crossDomain: true,
+          dataType: 'json',
+          data:JSON.stringify( {'name' :name,'content':list}),
+          contentType: 'application/json',
+          success: function(data) {
+              console.log("AJAx:"+data);
+              if(data.success=='true'){
+                $(btn).text("Edit");
+                $(ul).html(list);
+                
+                $(ul).fadeIn();
+                $(loader).hide();
+              }
+              
+          },
+          error: function(data) {
+              console.log("AJAxerrr:"+data);
+          }
+        });
+        
+      }
+      
+    });
+
+    $('#btnMigration').click(function(e){
+      e.preventDefault();
+      var env = $('#environment').val();
+      var prod = $('#product').val();
+      var date = $('#date').val();
+      var version = $('#version').val();
+      var comm = $('#comments').val();
+      
+       console.log(env+':'+prod+':'+date+':'+version+':'+comm);
+       
+        $.ajax({
+          //url: 'http://localhost:3000/migrations',
+          url: 'http://msp52458.us.oracle.com:3000/migrations',
+          type: 'POST',
+          crossDomain: true,
+          dataType: 'json',
+          data:JSON.stringify( {'environment' :env,'product':prod,mDate:date,version:version,comments:comm}),
+          contentType: 'application/json',
+          success: function(data) {
+              console.log("AJAx:"+data);
+              if(data.success=='true'){
+                $(btn).text("Edit");
+                $(ul).html(list);
+                
+                $(ul).fadeIn();
+                $(loader).hide();
+              }
+              
+          },
+          error: function(data) {
+              console.log("AJAxerrr:"+data);
+          }
+        });
+        
+    
+      
+    });
+
+    
+
+    //$('#tableScriptDelivery').hide();
+    $('#monthwiseExceVelocity').hide();
+
+
+    
+    //$('#graphScriptDelivery').hide();
+
+
+
+
+
+
+    

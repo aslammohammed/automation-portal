@@ -1,0 +1,21 @@
+extends layout
+block content
+            .row
+              .col-md-12
+                .card
+                  .card-header
+                    h3.tab Month Wise Execution Velocity(#{resultSet.length}) 
+                  .card-content.table-responsive.table-full-width
+                    table.table
+                      thead.text-danger
+                        th Functionality
+                        th Manual Testcase Name
+                        th Status
+                      tbody
+                      -for(var prop in resultSet)
+                        tr
+                          td(bgcolor='white') #{resultSet[prop].FUNCTIONALITY}
+                          td(bgcolor='white') #{resultSet[prop].MANUAL_TC_NAME}
+                          -var color={'Pass':'green','Fail':'red'}
+                          -var status=resultSet[prop].STATUS
+                          td(bgcolor=color[status]) #{status}

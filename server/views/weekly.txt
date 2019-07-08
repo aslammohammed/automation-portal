@@ -1,0 +1,256 @@
+extends layout
+block content
+    .content
+          .container-fluid
+            .date
+              form#formId(action='/daily',method='POST', enctype='form-data')
+                input#datepicker(type='text' name='datetext',placeholder='#{date}')
+            .row
+              .col-md-9
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesChart(style='height:360px')
+                  .card-content
+                    h4.title Daily Runs
+                    p #{date}
+                    p.category
+                      span.text-success
+                        i.fa.fa-long-arrow-up
+                        | #{percentage}% pass in today's run.
+                      | 
+                  .card-footer
+                    .stats
+                      i.material-icons access_time
+                      | updated 4 minutes ago
+              .col-md-3
+                .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='orange')
+                    i.material-icons content_copy
+                  .card-content
+                    p.category Total Scrips
+                    h3.title
+                      | 501
+                      small scripts
+                  .card-footer
+                    .stats
+                      i.material-icons.text-danger warning
+                      a(href='#pablo') Get More Space...
+              .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='green')
+                    i.material-icons computer
+                  .card-content
+                    p.category Automation
+                    h3.title 5
+                      small servers
+                  .card-footer
+                    .stats
+                      i.material-icons computer
+                      | 
+              .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='red')
+                    i.material-icons info_outline
+                  .card-content
+                    p.category Fixed Issues
+                    h3.title 75
+                  .card-footer
+                    .stats
+                      i.material-icons local_offer
+                      | Tracked from Github
+            .row
+              .col-md-6
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesPieChart(style='height:360px')
+                  .card-content
+                    h4.title Daily Run Pie
+                    p #{date}
+                    p.category
+                      span.text-success
+                        i.fa.fa-long-arrow-up
+                        | #{percentage}% pass in today's run.
+                      | 
+append footerScripts
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(src='/js/notify.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit()
+    }});
+  script.
+    //bar chart
+    var title = !{JSON.stringify(title)};
+    var servers = !{JSON.stringify(servers)};
+    var pass = !{JSON.stringify(pass)};
+    var fail = !{JSON.stringify(fail)};
+    var total = !{JSON.stringify(total)};
+    var date = !{JSON.stringify(total)};
+
+    servers = servers.replace(/'/g, '"');
+    servers = JSON.parse("["+servers+"]");
+    console.log(servers);
+
+    pass = JSON.parse("["+pass+"]");
+    console.log(pass);
+
+    fail = JSON.parse("["+fail+"]");
+    console.log(fail);
+
+    total = JSON.parse("["+total+"]");
+    console.log(total);
+    
+    date = JSON.parse("["+date+"]");
+    console.log(date);
+    console.log("total:");
+    console.log(total);
+ 
+    if(total.length == 0)
+    {
+    console.log("length");
+    console.log(total.length);
+    $.notify("No Data Available for this Day \n Please select another date", {
+      globalPosition:'top center',
+      autoHideDelay: 50000,
+      });
+    }
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+    var myChart = echarts.init(document.getElementById('dailySalesChart'));
+    var config = {
+        rotate: 90,
+        align: 'left',
+        verticalAlign: 'middle',
+        position: 'insideBottom',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: false,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            rotate: config.rotate,
+            formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data : servers          
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+    var pieChart = echarts.init(document.getElementById('dailySalesPieChart'));
+    pieOption = {
+        title : {
+            text: 'Daily Run',
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data:[
+                    {value:pass, name:'Pass',color:'green'},
+                    {value:fail, name:'Fail'},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart.setOption(pieOption);

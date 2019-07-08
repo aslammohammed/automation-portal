@@ -1,0 +1,21 @@
+extends layout  
+block content
+  h3 Execution Trend Report
+  .row
+    .col-md-12 
+      form#formId(action='/execution-trend',method='POST', enctype='form-data')
+        .col-md-2 
+          //Select Date:
+          input#datepicker(type='text' name='datetext',placeholder='#{response.data.date}',style='margin:10px;padding:8px')
+          p.category     
+        .col-md-2
+          div.dropdown
+            button.btn.dropdown-toggle#btnFreq( type="button",data-toggle="dropdown",aria-expanded="true") Graph
+              b.caret
+            ul.dropdown-menu
+              li(class='')
+                a.freqDropdown Graph
+              li(class='')
+                a.freqDropdown Table         
+  include history_template
+  

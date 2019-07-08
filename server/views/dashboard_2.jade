@@ -1,0 +1,404 @@
+extends layout
+block content
+    .content(style='margin-top:0px;')
+          .container-fluid
+            .row
+              .col-md-9
+                .card
+                  .card-header(data-background-color='purple')
+                    h4.card-title Month Wise Execution Velocity
+                    //p.category Here is a subtitle for this table
+                  .card-content.table-responsive.table-full-width
+                    table.table
+                      thead.text-danger
+                        th Month
+                        th Aggregate Runs
+                        th Average Iteration
+                        th Total Pass
+                        th Total Fail
+                        th Pass%
+                        th Fail%
+                      tbody
+                        tr
+                          td#month1
+                          td#total1
+                          td#a1
+                          td#pass1
+                          td#fail1
+                          td#p1
+                          td#f1
+                        tr
+                          td#month2
+                          td#total2
+                          td#a2
+                          td#pass2
+                          td#fail2
+                          td#p2
+                          td#f2
+                        tr
+                          td#month3
+                          td#total3
+                          td#a3
+                          td#pass3
+                          td#fail3
+                          td#p3
+                          td#f3
+              .col-md-3
+                .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='orange')
+                    i.material-icons content_copy
+                  .card-content
+                    p.category Total Scripts
+                    h3.title
+                      | 501
+                      small scripts
+                  .card-footer
+                    .stats
+                      i.material-icons.text-danger warning
+                      a(href='#pablo') Get More Space...
+                .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='green')
+                    i.material-icons computer
+                  .card-content
+                    p.category Automation
+                    h3.title 5
+                      small servers
+                  .card-footer
+                    .stats
+                      i.material-icons computer
+                      | 
+            .row
+              .col-md-9
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesChart(style='height:360px')
+                  .card-content
+                    h4.title
+                    p.category
+                      span.text-success
+                        
+                      | 
+                  .card-footer
+                    .stats
+                      i.material-icons access_time
+                      | updated 4 minutes ago
+              .col-md-3
+                .col-lg-3.col-md-6.col-sm-6
+                .card.card-stats
+                  .card-header(data-background-color='red')
+                    i.material-icons info_outline
+                  .card-content
+                    p.category Fixed Issues
+                    h3.title 75
+                  .card-footer
+                    .stats
+                      i.material-icons local_offer
+                      | Tracked from Github
+                
+            .row
+              .col-lg-3.col-md-6.col-sm-6
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesPieChart1(style='height:260px')                                     
+              .col-lg-3.col-md-6.col-sm-6
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesPieChart2(style='height:260px')                                       
+              .col-lg-3.col-md-6.col-sm-6
+                .card
+                  .card-plain
+                    .ct-chart#dailySalesPieChart3(style='height:260px')
+
+append footerScripts
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit();
+    }});
+  script.
+    //bar chart
+    var title = !{JSON.stringify(title)};
+    var month_name = !{JSON.stringify(month_name)};
+    var pass = !{JSON.stringify(pass)};
+    var fail = !{JSON.stringify(fail)};
+    var total = !{JSON.stringify(total)};
+    var pas_per = !{JSON.stringify(pass_per)};
+    var fail_per = !{JSON.stringify(fail_per)};
+    var avg_it = !{JSON.stringify(avg_it)};
+
+    month_name = month_name.replace(/'/g, '"');
+    month_name = JSON.parse("["+month_name+"]");
+    console.log(month_name);
+    console.log(month_name[0]);
+
+    pass = JSON.parse("["+pass+"]");
+    console.log(pass);
+
+    fail = JSON.parse("["+fail+"]");
+    console.log(fail);
+
+    total = JSON.parse("["+total+"]");
+    console.log(total);
+    
+    pas_per= JSON.parse("["+pas_per+"]");
+    console.log(pas_per);
+
+    //fail_per= JSON.parse("["+fail_per+"]");
+    //console.log(fail_per);
+
+    avg_it= JSON.parse("["+avg_it+"]");
+    console.log(avg_it);
+
+
+    document.getElementById("month1").innerHTML = month_name[0];
+    document.getElementById("month2").innerHTML = month_name[1];
+    document.getElementById("month3").innerHTML = month_name[2];
+    document.getElementById("pass1").innerHTML = pass[0];
+    document.getElementById("pass2").innerHTML = pass[1];
+    document.getElementById("pass3").innerHTML = pass[2];
+    document.getElementById("total1").innerHTML = total[0];
+    document.getElementById("total2").innerHTML = total[1];
+    document.getElementById("total3").innerHTML = total[2];
+    document.getElementById("fail1").innerHTML = fail[0];
+    document.getElementById("fail2").innerHTML = fail[1];
+    document.getElementById("fail3").innerHTML = fail[2];
+    document.getElementById("p1").innerHTML =((pass[0]/total[0])*100).toFixed(0);
+    document.getElementById("p2").innerHTML = ((pass[1]/total[1])*100).toFixed(0);
+    document.getElementById("p3").innerHTML = ((pass[2]/total[2])*100).toFixed(0);
+    document.getElementById("f1").innerHTML = ((fail[0]/total[0])*100).toFixed(0);
+    document.getElementById("f2").innerHTML = ((fail[1]/total[1])*100).toFixed(0);
+    document.getElementById("f3").innerHTML = ((fail[2]/total[2])*100).toFixed(0);;
+    document.getElementById("a1").innerHTML = avg_it[0];
+    document.getElementById("a2").innerHTML = avg_it[1];
+    document.getElementById("a3").innerHTML = avg_it[2];
+    if(total.length == 0)
+    {
+        
+    //window.alert("No Data Available for this Day \n Please select another date");
+    }
+
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+    var myChart = echarts.init(document.getElementById('dailySalesChart'));
+    var config = {
+        rotate: 90,
+        align: 'left',
+        verticalAlign: 'middle',
+        position: 'insideBottom',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            rotate: config.rotate,
+            formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data :month_name         
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total
+            }
+        ]
+    };
+    myChart.setOption(option);
+    console.log(pass);
+    var pieChart1 = echarts.init(document.getElementById('dailySalesPieChart1'));
+    pieOption = {
+        title : {
+            text: month_name[0],
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data:[
+                    {value:pass[0], name:'Pass',color:'green'},
+                    {value:fail[0], name:'Fail'},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart1.setOption(pieOption);
+    var pieChart2 = echarts.init(document.getElementById('dailySalesPieChart2'));
+    pieOption = {
+        title : {
+            text: month_name[1],
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data:[
+                    {value:pass[1], name:'Pass',color:'green'},
+                    {value:fail[1], name:'Fail'},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart2.setOption(pieOption);
+
+    var pieChart3 = echarts.init(document.getElementById('dailySalesPieChart3'));
+    pieOption = {
+        title : {
+            text: month_name[2],
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data:[
+                    {value:pass[2], name:'Pass',color:'green'},
+                    {value:fail[2], name:'Fail'},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart3.setOption(pieOption);
+
+
+
+
+
+
+    

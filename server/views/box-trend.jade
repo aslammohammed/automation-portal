@@ -1,0 +1,189 @@
+extends layout
+block content
+  - var date = response.data.date
+  - var data = response.data
+  - var hosts = data.hosts
+  - var envs = data.envs
+  - var selectedHost = data.selectedHost
+  - var selectedEnv = data.selectedEnv
+  .row
+    .col-md-12
+      h3 Continous Delivery Dashboard
+      form#formId(action='/box-trend',method='POST', enctype='form-data')
+        .col-md-3 
+          input#datepicker(type='text',value='#{date}',name='date',placeholder= '#{date}',style='margin:10px;padding:8px')
+        .col-md-1 
+        .col-md-3
+          select(name='lovHost', onchange='this.form.submit()',style='margin:10px;padding:8px')
+            each host in hosts
+              option(value=host.AUTOMATION_HOST, selected=(selectedHost==host.AUTOMATION_HOST)) #{host.AUTOMATION_HOST}
+        .col-md-1
+          
+        .col-md-3
+          select(name='lovEnv', onchange='this.form.submit()',style='margin:10px;padding:8px')
+            each env in envs
+              option(value=env.ENVIRONMENT, selected=(selectedEnv==env.ENVIRONMENT)) #{env.ENVIRONMENT}
+      .card#graph
+          .card-header
+            h4.card-title Daily box Run- #{selectedHost} - #{selectedEnv}
+          .card-plain
+            .ct-chart#dailyChart(style='height:360px')
+      .card#graph
+          .card-header
+            h4.card-title Weeky box Run- #{selectedHost} - #{selectedEnv}
+          .card-plain
+            .ct-chart#weeklyChart(style='height:360px')
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit();
+    }});
+    
+    var title = !{JSON.stringify(title)};
+    
+    var data = !{JSON.stringify(response.data)};
+    console.log("Data:"+JSON.stringify(data,0,2));
+    
+    var dailyDate = [];
+    var dailyPass = [];
+    var dailyFail = [];
+    var dailyTotal = [];
+
+    var dailyData = data.dailyData;
+    console.log("DD:"+dailyData);
+    for(var i=dailyData.length-1;i>=0;i--){
+        entry = dailyData[i];
+        console.log("entry:"+entry);
+        dailyDate.push(entry.DAY);
+        dailyPass.push(entry.PASS);
+        dailyFail.push(entry.FAIL);
+        dailyTotal.push(entry.TOTAL);
+    }
+
+    var weeklyDate = [];
+    var weeklyPass = [];
+    var weeklyFail = [];
+    var weeklyTotal = [];
+
+    var weeklyData = data.weeklyData;
+    console.log("WD:"+weeklyData);
+    for(var i=weeklyData.length-1;i>=0;i--){
+        entry = weeklyData[i];
+        console.log("entry:"+JSON.stringify(entry));
+        weeklyDate.push(entry.WEEK);
+        weeklyPass.push(entry.PASS);
+        weeklyFail.push(entry.FAIL);
+        weeklyTotal.push(entry.TOTAL);
+    }
+
+    var dailyChart = echarts.init(document.getElementById('dailyChart'));
+    var weeklyChart = echarts.init(document.getElementById('weeklyChart'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: '{c}',
+            fontSize: 16,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    function setChartOption(date,pass,fail,total){
+      var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data :date,
+                axisLabel:{rotate:20}
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total
+            }
+        ]
+      };
+
+      return option;
+    }
+    
+    dailyChart.setOption(setChartOption(dailyDate,dailyPass,dailyFail,dailyTotal));
+    weeklyChart.setOption(setChartOption(weeklyDate,weeklyPass,weeklyFail,weeklyTotal));
+
+    

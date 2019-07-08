@@ -1,0 +1,317 @@
+extends layout
+append head
+  link(href='/css/bootstrap.min.css', rel='stylesheet')
+  //  Material Dashboard CSS    
+  link(href='/css/material-dashboard.css?v=1.2.0', rel='stylesheet')
+  //  CSS for Demo Purpose, don't include it in your project     
+  link(href='/css/demo.css', rel='stylesheet')
+  //     Fonts and icons     
+  link(href='http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css', rel='stylesheet')
+  link(href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons', rel='stylesheet', type='text/css')
+  link(href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/base/jquery-ui.css', rel='stylesheet')
+
+block content  
+  .row
+    .col-md-12
+      form#formId(action='/results/liveResult',method='POST', enctype='form-data')
+        .col-md-2
+          select(name='box', onchange='this.form.submit()',style='margin:10px;padding:8px')
+            each box in boxes
+              option(value=box.value, selected=(selectedBox==box.value)) #{box.name}
+  div#execDetails
+    div
+  div#execStatus
+    div
+  div#executionResult
+    div
+              ///#{response}
+                //.row
+                  .col-md-12
+                    .card
+                      .card-plain(style='padding:0px;margin:0px')
+                        .ct-chart#dailySalesChart(style='height:360px;padding:0px;margin:0px')
+                      .card-content
+                        h4.title Daily Runs
+                        p #{date}
+                        p.category
+                          span.text-success
+                            i.fa.fa-long-arrow-up
+                            | #{percentage}% pass in today's run.
+                        p.category
+                            span.text-fail
+                            i.fa.fa-long-arrow-down
+                            | #{100-percentage}% fail in today's run.
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  //script(src='/js/notify.js')
+  script(src='/js/bootstrap-notify.js')
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit()
+    }});
+    //bar chart
+    /*
+    var title = !{JSON.stringify(title)};
+    var servers = !{JSON.stringify(servers)};
+    var pass = !{JSON.stringify(pass)};
+    var fail = !{JSON.stringify(fail)};
+    var total = !{JSON.stringify(total)};
+    var date = !{JSON.stringify(total)};
+    */
+
+    
+    var response = !{JSON.stringify(response)};
+    response = JSON.parse(response);
+    //console.log("response:"+response);
+    //console.log("response:"+response.data);
+
+      
+    function detailsTemplate(rows,tableHeading){
+      console.log(rows)
+      var subTemplate ="";
+      //var entry=rows;
+      var name;
+      //var entry;
+      //entry = rows[0];
+      var rowcount= rows.length;
+      for(var i=0;i<rowcount;i++){
+        entry = rows[i];       
+        for (name in entry) {
+          subTemplate +='<tr><th>'+name+'</th><td>'+entry[name]+'</td></tr>';  
+        }
+      }
+      
+
+      function addRows(item, index){
+        subTemplate +='<th>'+item[0]+'</th><td>'+item[1]+'</td>';
+      }
+
+      var template =   '<div class="col-md-6">'+
+                              '<div class="card">'+
+                                  '<div class="card-header" data-background-color="red">'+
+                                      '<h4 class="title">'+tableHeading+'</h4>'+
+                                      '<p class="category"></p>'+
+                                  '</div>'+
+                                  '<div class="card-content table-responsive">'+
+                                      '<table class="table table-hover">'+
+                                          '<tbody>'+subTemplate+
+                                              
+                                          '</tbody>'+
+                                      '</table>'+
+                                  '</div>'+
+                              '</div>'+
+                          '</div>'
+        return template;
+    }
+
+    function stageResultTemplate(rows, headers, maxStageCount){
+      var colorMap = {"In Progress":"yellow","Pass":"green","Fail":"Red","Timed Out":"orange"}
+
+      var headerTemplate="";
+      var subTemplate ="";
+      //var entry=rows;
+      var name;
+      //entry = array[0];
+      var headerCount= headers.length;
+      for(var i=0;i<headerCount;i++){
+        headerTemplate += '<th>'+headers[i]+'</th>';  
+      }
+      for(var i=0;i<maxStageCount;i++){
+        headerTemplate += '<th>Stage '+ (i+1)+' result</th>';  
+      }
+      
+      var rowcount= rows.length;
+      console.log("row count:"+rows.length);
+      //var rowcount=6;
+      for(var i=0;i<rowcount;i++){
+        subTemplate +='<tr>';
+        var entries = rows[i];
+        console.log("row"+i+":"+rows[i])
+        var entryCount=entries.length;
+        for(var j=0;j<entryCount;j++){
+          var entry=entries[j];
+          for (name in entry) {
+            subTemplate +='<td style="background-color:'+colorMap[entry[name]]+'">'+entry[name]+'</td>';
+            //break;  
+          }
+        }       
+        
+        subTemplate +='</tr>';
+      }
+      console.log("temp:"+subTemplate);
+      var template =   '<div class="col-md-12">'+
+                              '<div class="card">'+
+                                  '<div class="card-header" data-background-color="red">'+
+                                      '<h4 class="title">Run Details</h4>'+
+                                      '<p class="category"></p>'+
+                                  '</div>'+
+                                  '<div class="card-content table-responsive">'+
+                                      '<table class="table table-hover">'+
+                                          '<tbody><tr>'+headerTemplate+'</tr>'+subTemplate+
+                                          '</tbody>'+
+                                      '</table>'+
+                                  '</div>'+
+                              '</div>'+
+                          '</div>'
+        return template;
+    }
+
+    //daily data
+    function processData(data,divToAppend, tableHeading){
+      console.log("data:"+data);
+      var template=detailsTemplate(data,tableHeading);
+      $(template).hide().appendTo(divToAppend).fadeIn(500);
+    }
+
+    function processResultData(data, headers, maxStageCount, divToAppend){
+      //console.log("data:"+data);
+      var template=stageResultTemplate(data, headers, maxStageCount);
+      $(template).hide().appendTo(divToAppend).fadeIn(500);
+    }
+    
+    function showNotification(from, align, icon, type, msg){
+      console.log(msg);
+        $.notify({
+            icon: icon,
+            message: msg
+        },{
+            type: type,
+            timer: 1000,
+            placement: {
+                from: from,
+                align: align
+            }
+        });
+    }
+    //notifications 
+    //console.log("dtatalength:"+response.data);
+    if(jQuery.isEmptyObject(response.data.execDetails)){
+
+      var msg="No live execution is going on in selected server, please select another server.";
+
+      showNotification('top','center','error_outline','info',msg);
+    }else if(response.error!=null){
+      showNotification('top','center','error_outline','error',response.error);
+    }else{
+      processData(response.data.execDetails, "#execDetails","Execution Details");
+      $('#execDetails').fadeIn(1000);
+      delete response.data.execStatus[0];
+      processData(response.data.execStatus, "#execStatus","Automation Suite Overall Status");
+      $('#execStatus').fadeIn(1000);
+      processResultData(response.data.executionResult,response.data.resultHeaders,response.data.maxStageCount, "#executionResult");
+      $('#executionResult').fadeIn(1000);
+    }
+
+    window.setInterval(function(){
+      var page_y = document.getElementsByTagName("body")[0].scrollTop;
+            
+      $('#formId').submit();
+      //window.location.href = window.location.href.split('?')[0] + '?page_y=' + page_y;
+      //window.scrollTo(,page_y);
+    }, 100000);
+
+    
+    
+    /*
+    if(jQuery.isEmptyObject(response.monthlyData)){
+      var msg="Monthly Report is not available for the date, please select another date.";
+
+      showNotification('top','center','error_outline','danger',msg);
+    }else{
+      processData(response.monthlyData, date,"#monthly","monthly");
+      $('#monthly').hide();
+    }
+    //$('#daily').hide();
+    //$('#weekly').hide();
+    //$('#monthly').hide();
+    
+    
+
+    $('.freqDropdown').click(function() {
+        console.log('clicked');
+        //console.log($('#btnFreq').text());
+        var freq=$(this).text();
+        console.log(freq);
+        $('#btnFreq').text($(this).text());
+
+        if(freq=="DAILY REPORT"){
+          console.log(freq+"qwqwqw");
+          $('#monthly').hide();
+          $('#weekly').hide();
+          console.log(response.dailyData);
+          console.log(jQuery.isEmptyObject(response.dailyData));
+          if(jQuery.isEmptyObject(response.dailyData)){
+            var msg="Daily Report is not available for the date, please select another date or check for weekly or monthly Report."
+            console.log(freq+"1");
+            showNotification('top','center','error_outline','danger',msg);
+          }
+          $('#daily').fadeIn(1000);
+        }else if(freq=="WEEKLY REPORT"){
+          $('#daily').hide();
+          $('#monthly').hide();
+          if(jQuery.isEmptyObject(response.weeklyData)){
+            var msg="Weekly Report is not available for the date, please select another date or check for monthly Report."
+
+            showNotification('top','center','error_outline','danger',msg);
+          }
+          $('#weekly').fadeIn(1000);
+        }else if(freq=="MONTHLY REPORT"){
+          $('#weekly').hide();
+          $('#daily').hide();
+          if(jQuery.isEmptyObject(response.monthlyData)){
+            var msg="Monthly Report is not available for the date, please select another date."
+
+            showNotification('top','center','error_outline','danger',msg);
+          }
+          $('#monthly').fadeIn(1000);
+        }
+    });
+
+    */
+
+    /*
+    servers = servers.replace(/'/g, '"');
+    servers = JSON.parse("["+servers+"]");
+    console.log(servers);
+
+    pass = JSON.parse("["+pass+"]");
+    console.log(pass);
+
+    fail = JSON.parse("["+fail+"]");
+    console.log(fail);
+
+    total = JSON.parse("["+total+"]");
+    console.log(total);
+    
+    date = JSON.parse("["+date+"]");
+    console.log(date);
+    console.log("total:");
+    console.log(total);
+    console.log(pass);
+    var sum = 0;
+    var sum_f=0
+    var i=0;
+    for(i=0;i<pass.length;i++)
+    {
+        sum+=pass[i];
+        sum_f+=fail[i];
+
+    }
+    console.log(sum);
+    if(total.length == 0)
+    {
+    console.log("length");
+    console.log(total.length);
+    $.notify("No Data Available for this Day \n Please select another date", {
+      globalPosition:'top center',
+      autoHideDelay: 50000,
+      });
+    }
+    */
+    

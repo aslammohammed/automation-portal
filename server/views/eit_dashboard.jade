@@ -1,0 +1,729 @@
+extends layout
+block content
+  .row
+    .col-md-12
+      .col-md-6
+        h3 Enterprise Integration Dashboard
+  .row
+    .col-md-12
+      .card#manualExecVelocity
+        .card-header
+          h4.card-title EIT Monthly Report - #{data.currentMonth}
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                .card-chart
+                    table.table.table-responsive
+                      thead
+                        tr
+                          th 
+                          th Test Planned 
+                          th Test Executed
+                          th No Run
+                          th Passed
+                          th Failed
+                          th Pass %
+                          th Fail %
+                          th Defects
+                      tbody
+                        - var lengthA = data.automationData.length
+                        if lengthA>0
+                          - var autoPlanned = data.automationData[lengthA-1].TEST_PLANNED
+                          - var autoExec = data.automationData[lengthA-1].TEST_EXECUTED
+                          - var autoNoRun = data.automationData[lengthA-1].NO_RUN
+                          - var autoPassed = data.automationData[lengthA-1].PASS
+                          - var autoFailed = data.automationData[lengthA-1].FAIL
+                          - var autoTotal = autoPassed+ autoFailed
+                          - var autoDef = data.automationData[lengthA-1].DEFECTS
+                          tr
+                            td Automation
+                            td !{autoPlanned}
+                            td !{autoExec}
+                            td !{autoNoRun}
+                            td !{autoPassed}
+                            td !{autoFailed}
+                            td !{Math.floor((autoPassed/autoTotal)*100)}
+                            td !{Math.floor((autoFailed/autoTotal)*100)}
+                            td !{autoDef}
+                        else
+                          tr
+                            td Insufficient data
+                        - var lengthM = data.manualData.length
+                        if lengthM>0
+                          - var manPlanned = data.manualData[lengthM-1].TEST_PLANNED
+                          - var manExec = data.manualData[lengthM-1].TEST_EXECUTED
+                          - var manNoRun = data.manualData[lengthM-1].NO_RUN
+                          - var manPassed = data.manualData[lengthM-1].PASS
+                          - var manFailed = data.manualData[lengthM-1].FAIL
+                          - var manTotal = manPassed+ manFailed 
+                          - var manDef = data.manualData[lengthM-1].DEFECTS
+                          tr
+                            td Manual
+                            td !{manPlanned}
+                            td !{manExec}
+                            td !{manNoRun}
+                            td !{manPassed}
+                            td !{manFailed}
+                            td !{ Math.floor((manPassed/manTotal)*100)}
+                            td !{Math.floor((manFailed/manTotal)*100)}
+                            td !{manDef}
+                      if lengthA >0 && lengthM>0
+                        -var totalPassed = autoPassed + manPassed
+                        -var totalFailed = autoFailed + manFailed
+                        -var totalTotal = totalPassed + totalFailed
+                        -var totalDef =  
+                      thead
+                        tr
+                          th Total
+                          th !{autoPlanned + manPlanned}
+                          th !{autoExec + manExec}
+                          th !{autoNoRun+manNoRun}
+                          th !{totalPassed}
+                          th !{totalFailed}
+                          th !{ Math.floor((totalPassed/totalTotal)*100)}
+                          th !{Math.floor((totalFailed/totalTotal)*100)}
+                          th !{parseFloat(manDef) + parseFloat(autoDef)}
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                h4.card-title Burn Down Chart
+                if data.automationData.length<1 && data.manualData.length<1
+                  h5 Insufficient data
+                .ct-chart#burndownBar(style='height:300px')
+  .row
+    .col-md-12
+      .card#manualExecVelocity
+        .card-header
+          h4.card-title EIT Progress Report - #{data.currentMonth}
+        .row
+          .col-md-12
+            - var status = {"Not Working":"RED","Completed With P1":"RED","In Progress":"YELLOW","Completed With P2":"YELLOW","Completed":"GREEN"}
+            - var month1 = data.executionPlanData[0]
+            - var month2 = data.executionPlanData[1]
+            if  month1
+              .col-md-6
+                .card
+                  h4.card-title CIT Planning - !{month1.month} 
+                  .card-chart
+                      table.table.table-responsive
+                        thead
+                          tr
+                            th Integration
+                            th Status
+                        tbody
+                          -for(var i in month1.planningData)
+                            - var entry = month1.planningData[i]
+                            tr
+                              td !{entry.integration}
+                              td(bgcolor = status[entry.status]) !{entry.status}
+                                //select.form-control.status( name="status", value =entry.status )
+                                  option(value="COMPLETED",bgcolor = status[entry.status]) COMPLETED
+                                  option(value="IN PROGRESS",bgcolor = status[entry.status]) IN PROGRESS
+                                  option(value="NOT STARTED",bgcolor = status[entry.status]) NOT STARTED 
+                              //td.td-actions(style="display:block")
+                                button.btn.btn-primary
+                                  i.material-icons edit
+            if month2                     
+              .col-md-6
+                .card
+                    h4.card-title CIT Planning - !{month2.month} 
+                    .card-chart
+                      .ct-chart
+                        table.table.table-responsive
+                          thead
+                            tr
+                              th Integration
+                              th Status
+                          tbody
+                            -for(var i in month2.planningData)
+                              - var entry = month2.planningData[i]
+                              tr
+                                td !{entry.integration}
+                                td(bgcolor = status[entry.status]) !{entry.status}
+                                  //select.form-control.status( name="status", value =entry.status )
+                                    option(value="COMPLETED") COMPLETED
+                                    option(value="IN PROGRESS") IN PROGRESS
+                                    option(value="NOT STARTED") NOT STARTED
+  .row
+    .col-md-12
+      .card#manualExecVelocity
+        .card-header
+          h4.card-title Integration Test Matrix
+        .row
+          .col-md-12
+            .col-md-12
+              
+              - var month1 = data.testMatrixData[0].monthData[0]
+              - var month2 = data.testMatrixData[0].monthData[1]
+              //- var month3 = data.testMatrixData[0].monthData[2].month
+              if month1 && month2
+                .card
+                  .card-chart
+                      table.table.table-responsive
+                        thead
+                          tr
+                            th Integration
+                            th !{month1.month}
+                            th !{month2.month}
+                            //th !{month3}
+                              //th !{data.testMatrixData[0].monthData[2].month}
+                          tr
+                        tbody
+                          -for(var i in data.testMatrixData)
+                              - var entry = data.testMatrixData[i]
+                                tr
+                                  td !{entry.integration}
+                                  -for(var j in entry.monthData)
+                                    if j!=0
+                                      - var sub = entry.monthData[j]
+                                        td(bgcolor = status[sub.status]) !{sub.version==null?'Not started':sub.version}
+                                        //td !{sub.version}
+              else
+                p insufficient data
+  .row
+    .col-md-12
+      .card#manualExecVelocity
+        .card-header
+          h4.card-title Issues Report
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                .card-chart
+                    table.table.table-responsive
+                      thead
+                        tr
+                          th Category
+                          th Severity
+                          th Issue Description
+                          th Remedition Plan
+                      tbody
+                        - var lengthI = data.issuesData.length
+                        if lengthI>0
+                          -for(var i in data.issuesData)
+                            - var entry = data.issuesData[i]
+                            tr
+                              td !{entry.CATEGORY}
+                              td !{entry.SEVERITY}
+                              td !{entry.ISSUE_DESCRIPTION}
+                              td !{entry.WORKAROUND}
+                                
+
+  .row(style="display:none")
+    .col-md-12
+      .card#BugDBReports
+        .card-header
+          h4.card-title BugDB Reports 
+        .row
+          .col-md-12
+            .col-md-12
+              .card
+                h4.card-title Open Defects
+                .ct-chart#productDefectsBar(style='height:300px')
+              
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  
+  script.
+    var responseData = !{JSON.stringify(data)};
+    var data = responseData;
+    
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+    function calculatePercentage(numArray){
+      const arrSum = arr => arr.reduce((a,b) => a + b, 0);
+
+      var total = arrSum(numArray);
+      var perc = [];
+      numArray.forEach(function(item){
+        perc.push(Math.round((item/total *100)));
+      })
+        
+      
+      return perc;
+    }
+    function setShadowBar(chart,xaxisData,dataShadow,data){
+      option = {
+          title: {
+              
+          },
+          xAxis: {
+              data: xaxisData,
+              axisLabel: {
+                  inside: true,
+                  verticalAlign:'center',
+                  rotate:90,
+                  textStyle: {
+                      color: '#fff'
+                  },
+              },
+              axisTick: {
+                  show: false
+              },
+              axisLine: {
+                  show: false
+              },
+              z: 10
+          },
+          yAxis: {
+              axisLine: {
+                  show: false
+              },
+              axisTick: {
+                  show: false
+              },
+              axisLabel: {
+                  textStyle: {
+                      color: '#999'
+                  }
+              }
+          },
+          /*
+          dataZoom: [
+              {
+                  type: 'inside'
+              }
+          ],
+          */
+          series: [
+              { // For shadow
+                  type: 'bar',
+                  itemStyle: {
+                      normal: {color: 'rgba(0,0,0,0.05)'}
+                  },
+                  barGap:'-100%',
+                  barCategoryGap:'40%',
+                  data: dataShadow,
+                  animation: true
+              },
+              {
+                  type: 'bar',
+                  label: {
+                    normal: {
+                        show: true,
+                        position: 'bottom'
+                    }
+                  },
+                  itemStyle: {
+                      normal: {
+                          color: new echarts.graphic.LinearGradient(
+                              0, 0, 0, 1,
+                              [
+                                  {offset: 0, color: '#83bff6'},
+                                  {offset: 0.5, color: '#188df0'},
+                                  {offset: 1, color: '#188df0'}
+                              ]
+                          )
+                      },
+                      emphasis: {
+                          color: new echarts.graphic.LinearGradient(
+                              0, 0, 0, 1,
+                              [
+                                  {offset: 0, color: '#2378f7'},
+                                  {offset: 0.7, color: '#2378f7'},
+                                  {offset: 1, color: '#83bff6'}
+                              ]
+                          )
+                      }
+                  },
+                  data: data
+              }
+          ]
+      };
+      chart.setOption(option);
+    }
+
+    function setBarChartOption(chart,legendData,seriesData,xaxisData,barColor){
+      
+      var option = {
+          color: barColor,
+          tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                  type: 'shadow'
+              }
+          },
+          legend: {
+              data: legendData
+          },
+          toolbox: {
+              show: false,
+              orient: 'vertical',
+              left: 'right',
+              top: 'center',
+              feature: {
+                  mark: {show: true},
+                  dataView: {show: true, readOnly: false},
+                  magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                  restore: {show: true},
+                  saveAsImage: {show: true}
+              }
+          },
+          calculable: true,
+          xAxis: [
+              {
+                  type: 'category',
+                  axisTick: {show: false},
+                  //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                  data :xaxisData,
+                  axisLabel:{rotate:30,fontSize:10},
+                  height:80
+                }
+
+                  //data : labels            }
+          ],
+          yAxis: [
+              {
+                  type: 'value'
+              }
+          ],
+          series:seriesData
+        };
+      chart.setOption(option);
+    }
+
+    //function to set pie chart option
+
+    function setPieChartOptions(pieChart,legendData, seriesName,seriesData,seriesColor,formatter,radius,labelPosition){
+      pieOption = {
+        title : {
+          
+            //text: seriesName,
+            //subtext: date,
+            //x:'center'
+        },
+        tooltip : {
+           trigger: 'item',
+           formatter: formatter
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: legendData
+        },
+        series : [
+            {
+                name: seriesName,
+                type: 'pie',          
+                radius : radius,
+                label: {
+                  formatter:formatter,
+                    position: labelPosition
+                },
+                labelLine: {
+                normal: {
+                    show: true
+                }
+            },
+                center: ['50%','50%'],
+                data:seriesData,
+                color:seriesColor,
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+      };
+
+      pieChart.setOption(pieOption);
+    }
+    //
+
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+
+    var formatter = "{c}";
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: formatter,
+            fontSize: 12,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    
+    
+    //product defects
+    var productDefectsBar = echarts.init(document.getElementById('productDefectsBar'));
+    var BPD=data.bugProductData;
+    var xaxisDataBPD=[];
+    var seriesDataBPD=[];
+    var dataBPD=[];
+    
+    for(var i=0;i<BPD.length;i++){
+      var entry=BPD[i];
+      //legendData.push(entry.functionality);
+      xaxisDataBPD.push(entry.ALIAS);
+        dataBPD.push(entry.DEFECTS);
+      }
+    var yMaxBPD = 12;
+    var dataShadowBPD = [];
+
+    for (var i = 0; i < dataBPD.length; i++) {
+        dataShadowBPD.push(yMaxBPD);
+    }
+    setShadowBar(productDefectsBar,xaxisDataBPD,dataShadowBPD,dataBPD);
+
+    // burn down chart
+    var burndownBarChart=echarts.init(document.getElementById('burndownBar'));
+    var passData = [];
+    var failData = [];
+    var totalData = [];
+    var planned = [];
+    var weeks = [];
+    var manualData=responseData.manualData;
+    var automationData=responseData.automationData;
+    console.log("manual Data:"+manualData);
+    console.log("automation Data:"+automationData);
+    if(manualData.length==0){
+      $("#execVelocity").hide();
+    }
+    var prevPass=0,prevFail=0,prevTotal=0;
+    for(var i=0;i<manualData.length;i++){
+      var entry=manualData[i];
+      passData.push(entry.PASS);
+      prevPass = entry.PASS;
+      failData.push(entry.FAIL);
+      prevFail = entry.FAIL;
+      //totalData.push(entry.TEST_EXECUTED+prevTotal);
+      totalData.push(entry.TEST_EXECUTED);
+      prevTotal = entry.TEST_EXECUTED
+      planned.push(entry.TEST_PLANNED)
+      weeks.push('W'+(i+1));
+      
+    }
+    var prevPass=0,prevFail=0,prevTotal=0;
+    for(var i=0;i<automationData.length;i++){
+      var entry=automationData[i];
+      passData[i]=(passData[i]+entry.PASS);
+      prevPass = entry.PASS;
+      failData[i]=(failData[i]+entry.FAIL);
+      prevFail = entry.FAIL;
+      totalData[i]=(totalData[i]+entry.TEST_EXECUTED);
+      prevTotal = entry.TEST_EXECUTED
+      planned[i]=planned[i]+entry.TEST_PLANNED;
+    }
+
+    var legendData=['Planned','Executed','Pass', 'Fail','Planned'];
+    
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: "{c}",
+            fontSize: 12,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+    
+    var seriesData= [
+              {
+                  name: 'Planned',
+                  type: 'bar',
+                  label: labelOption,
+                  barGap: 0,
+                  //data: [220, 182, 191, 234, 290]
+                  data: planned
+              },
+              {
+                  name: 'Executed',
+                  type: 'bar',
+                  label: labelOption,
+                  //data: [220, 182, 191, 234, 290]
+                  data: totalData
+              },
+              {
+                  name: 'Pass',
+                  type: 'bar',
+                  label: labelOption,
+                  //data: [320, 332, 301, 334, 390]
+                  data: passData
+              },
+              {
+                  name: 'Fail',
+                  type: 'bar',
+                  label: labelOption,
+                  //data: [220, 182, 191, 234, 290]
+                  data: failData
+              }
+
+          ];
+    var barColor = ['#0c84eb','orange','green','#e73d3a'];
+    setBarChartOption(burndownBarChart,legendData,seriesData,weeks,barColor);
+
+
+
+    $('.envDropdown').click(function() {
+      console.log('clicked');
+      console.log($('#btnEnv').text());
+      var env=$(this).text().trim();
+      console.log(env);
+      $('#btnEnv').text($(this).text());
+      //function call
+      setMigrationChartForEnv(responseData,env);
+    });
+
+    $('.btnEdit').click(function(e){
+      var btnText = $(this).text().trim();
+      var btn = $(this);
+      var ul = $(this).parent().parent().find('ul');
+      var txtArea = $(this).parent().parent().find('textarea');
+      var formdiv = $(txtArea).closest('div');
+      var loader = $(this).parent().parent().parent().find('.cover-spin');
+      var name = $(txtArea).attr('name');
+       console.log('name:'+name );
+      console.log('formdiv:'+JSON.stringify(formdiv) );
+      console.log('Loader:'+JSON.stringify(loader) );
+      if(btnText=='Edit')
+      {
+        $(this).text("Update");
+        //$('#notesList').hide();
+        $(ul).hide();
+
+        //var list = document.getElementById('notesList').childNodes;
+        var list = $(ul).children();
+        var notesArray = '';
+        for(var i=0;i < list.length; i++) {
+            var arrValue = list[i].innerHTML.trim();
+            //alert(arrValue);
+            arrValue=arrValue||'';
+            notesArray+=arrValue;
+            notesArray+='\n';
+        }
+        $(txtArea).val(notesArray);
+        $(formdiv).fadeIn();
+
+      }else if(btnText=='Update'){
+        var notes = $(txtArea).val();
+        $(formdiv).hide();
+        //$('#notesLoader').fadeIn();
+        $(loader).fadeIn();
+        var notes = notes.split('\n');
+        var list="";
+        notes.forEach(function(value,index,array){
+          if(value!='')
+            list=list+"<li>"+value+"</li>"
+        })
+         console.log("update:"+list);
+        e.preventDefault();
+        
+        
+        $.ajax({
+          //url: 'http://localhost:3000/notes',
+          url: 'http://msp52458.us.oracle.com:3000/notes',
+          type: 'POST',
+          crossDomain: true,
+          dataType: 'json',
+          data:JSON.stringify( {'name' :name,'content':list}),
+          contentType: 'application/json',
+          success: function(data) {
+              console.log("AJAx:"+data);
+              if(data.success=='true'){
+                $(btn).text("Edit");
+                $(ul).html(list);
+                
+                $(ul).fadeIn();
+                $(loader).hide();
+              }
+              
+          },
+          error: function(data) {
+              console.log("AJAxerrr:"+data);
+          }
+        });
+        
+      }
+      
+    });
+
+    $('#btnMigration').click(function(e){
+      e.preventDefault();
+      var env = $('#environment').val();
+      var prod = $('#product').val();
+      var date = $('#date').val();
+      var version = $('#version').val();
+      var comm = $('#comments').val();
+      
+       console.log(env+':'+prod+':'+date+':'+version+':'+comm);
+       
+        $.ajax({
+          //url: 'http://localhost:3000/migrations',
+          url: 'http://msp52458.us.oracle.com:3000/migrations',
+          type: 'POST',
+          crossDomain: true,
+          dataType: 'json',
+          data:JSON.stringify( {'environment' :env,'product':prod,mDate:date,version:version,comments:comm}),
+          contentType: 'application/json',
+          success: function(data) {
+              console.log("AJAx:"+data);
+              if(data.success=='true'){
+                $(btn).text("Edit");
+                $(ul).html(list);
+                
+                $(ul).fadeIn();
+                $(loader).hide();
+              }
+              
+          },
+          error: function(data) {
+              console.log("AJAxerrr:"+data);
+          }
+        });
+        
+    
+      
+    });
+
+    
+
+    //$('#tableScriptDelivery').hide();
+    //$('#monthwiseExceVelocity').hide();
+
+
+    
+    //$('#graphScriptDelivery').hide();
+
+
+
+
+
+
+    

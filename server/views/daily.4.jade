@@ -1,0 +1,931 @@
+extends layout
+append head
+  //link(href='/css/bootstrap.min.css', rel='stylesheet')
+  //  Material Dashboard CSS    
+  //link(href='/css/material-dashboard.css?v=1.2.0', rel='stylesheet')
+  //  CSS for Demo Purpose, don't include it in your project     
+  //link(href='/css/demo.css', rel='stylesheet')
+  //     Fonts and icons     
+  //link(href='http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css', rel='stylesheet')
+  //link(href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons', rel='stylesheet', type='text/css')
+  //link(href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/base/jquery-ui.css', rel='stylesheet')
+block content
+  h3 Execution Trend Report
+  .row
+    form#formId(action='/daily',method='POST', enctype='form-data')
+      .col-md-2 
+        //Select Date:
+        input#datepicker(type='text' name='datetext',placeholder='#{date}',style='margin:10px;padding:8px')
+        p.category     
+      .col-md-2
+        div.dropdown
+          button.btn.dropdown-toggle#btnFreq( type="button",data-toggle="dropdown",aria-expanded="true") Graph
+            b.caret
+          ul.dropdown-menu
+            li(class='')
+              a.freqDropdown Graph
+            li(class='')
+              a.freqDropdown Table         
+  include history_template
+     // h3 Execution Trend Report
+      .row
+        form#formId(action='/daily',method='POST', enctype='form-data')
+          .col-md-2 
+            //Select Date:
+            input#datepicker(type='text' name='datetext',placeholder='#{date}',style='margin:10px;padding:8px')
+            p.category     
+          .col-md-2
+            div.dropdown
+              button.btn.dropdown-toggle#btnFreq( type="button",data-toggle="dropdown",aria-expanded="true") Graph
+                b.caret
+              ul.dropdown-menu
+                li(class='')
+                  a.freqDropdown Graph
+                li(class='')
+                  a.freqDropdown Table         
+      .row#daily
+        .col-md-12
+          .card
+            .card-header
+              h4.card-title#h1
+            .col-md-8
+              .card-plain#graph(style='padding:0px;margin:0px')
+                .ct-chart#dailySalesChart(style='height:360px;padding:0px;margin:0px')
+              .card-content
+                h4.title Daily Runs
+                p #{date}
+                p.category
+                  span.text-success
+                    i.fa.fa-long-arrow-up
+                    //| #{percentage}% pass in today's run.
+                    | #{dailyPass} pass in today's run.
+                p.category
+                  span.text-danger
+                    i.fa.fa-long-arrow-down
+                    //| #{100-percentage}% fail in today's run.
+                    | #{dailyFail} fail in today's run.
+            .col-lg-4.col-md-12#daily1
+              .card-plain
+                .ct-chart#dailySalesPieChart(style='height:360px')
+                
+      .row#table
+        .col-md-12
+          .card
+            .card-header
+              h4.card-title#t1
+            .card-content.table-responsive.table-full-width#table
+              table.table
+                thead.text-danger
+                  th HostName
+                    th Total
+                    th Pass
+                    th Fail
+                    th Pass%
+                    th Fail%
+                  tbody#myTable                                    
+      .row#week
+        .col-md-12
+          .card
+            .card-header
+              h4.card-title#h2
+              p.category
+            .col-md-8
+              .card-plain(style='padding:0px;margin:0px')
+                .ct-chart#dailySalesChart1(style='height:360px;padding:0px;margin:0px')
+              .card-content
+                h4.title weekly Runs
+                p #{from_date} to #{date}
+                p.category
+                  span.text-success
+                    i.fa.fa-long-arrow-up
+                    //| #{percentage1}% pass in weekly run.
+                    | #{weeklyPass} pass in weekly run.
+                p.category
+                  span.text-danger
+                    i.fa.fa-long-arrow-down
+                      //| #{100-percentage1}% fail in weekly run.
+                    | #{weeklyFail} fail in weekly run.
+            .col-lg-4.col-md-12.col-sm-7#week1
+              .card-plain
+                .ct-chart#dailySalesPieChart1(style='height:360px')      
+      .row#table1
+        .col-md-12
+          .card
+            .card-header
+              h4.card-title#t2
+            .card-content.table-responsive.table-full-width#table
+              table.table
+                thead.text-danger
+                  th HostName
+                    th Total
+                    th Pass
+                    th Fail
+                    th Pass%
+                    th Fail%
+                  tbody#myTable1           
+      .row#monthly
+        .col-md-12
+          .card
+            .card-header(data-background-color='green')
+              h4.card-title#h3
+              p.category
+            .col-md-8
+              .card-plain(style='padding:0px;margin:0px')
+                .ct-chart#dailySalesChart2(style='height:360px;padding:0px;margin:0px')
+              .card-content
+                h4.title Monthly Runs
+                p#head 
+                p.category
+                  span.text-success
+                    i.fa.fa-long-arrow-up
+                      //| #{percentage2}% pass in monthly run.
+                    | #{monthlyPass} pass in monthly run.
+                p.category
+                  span.text-danger
+                    i.fa.fa-long-arrow-down
+                      //| #{100-percentage2}% fail in monthly run.
+                    | #{monthlyFail} fail in monthly run.
+            .col-lg-4.col-md-12.col-sm-7#monthly1
+              .card-plain
+                .ct-chart#dailySalesPieChart2(style='height:360px')
+              
+      .row#table2
+        .col-md-12
+          .card
+            .card-header
+              h4.card-title#t3
+            .card-content.table-responsive.table-full-width#table
+              table.table
+                thead.text-danger
+                  th HostName
+                    th Total
+                    th Pass
+                    th Fail
+                    th Pass%
+                    th Fail%
+                  tbody#myTable2
+//append footerScripts
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  //script(src='/js/notify.js')
+  script(src='/js/bootstrap-notify.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit()
+    }});
+    function showNotification(from, align, icon, type, msg){
+        $.notify({
+            icon: icon,
+            message: msg
+        },{
+            type: type,
+            timer: 4000,
+            placement: {
+                from: from,
+                align: align
+            }
+        });
+    }
+    
+  script.
+    //bar chart
+    var title = !{JSON.stringify(title)};
+    var servers = !{JSON.stringify(daily_servers)};
+    var pass = !{JSON.stringify(daily_pass)};
+    var fail = !{JSON.stringify(daily_fail)};
+    var total = !{JSON.stringify(daily_total)};
+    var date = !{JSON.stringify(date)};
+    var servers1 = !{JSON.stringify(weekly_servers)};
+    var pass1 = !{JSON.stringify(weekly_pass)};
+    var fail1 = !{JSON.stringify(weekly_fail)};
+    var total1 = !{JSON.stringify(weekly_total)};
+    var servers2 = !{JSON.stringify(monthly_servers)};
+    var pass2 = !{JSON.stringify(monthly_pass)};
+    var fail2 = !{JSON.stringify(monthly_fail)};
+    var total2 = !{JSON.stringify(monthly_total)};
+    var from = !{JSON.stringify(from_date)};
+
+    servers = servers.replace(/'/g, '"');
+    servers = JSON.parse("["+servers+"]");
+    console.log(servers);
+
+    pass = JSON.parse("["+pass+"]");
+    console.log(pass);
+
+    fail = JSON.parse("["+fail+"]");
+    console.log(fail);
+
+    total = JSON.parse("["+total+"]");
+    console.log(total);
+    
+    //date = JSON.parse("["+date+"]");
+    console.log(date);
+    console.log("total:");
+    console.log(total);
+    console.log(pass);
+    var month=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+    var g1=date.split("/");
+    g1[0]=g1[0]%12;
+    console.log(g1[0]);
+    var m=month[g1[0]-1];
+    var g2=from.split("/");
+    document.getElementById("head").innerHTML = m;
+    //document.getElementById("m").innerHTML = m;
+    servers1 = servers1.replace(/'/g, '"');
+    servers1 = JSON.parse("["+servers1+"]");
+    console.log(servers1);
+
+    pass1 = JSON.parse("["+pass1+"]");
+    console.log(pass1);
+
+    fail1 = JSON.parse("["+fail1+"]");
+    console.log(fail1);
+
+    total1 = JSON.parse("["+total1+"]");
+    console.log(total1);
+
+    servers2 = servers2.replace(/'/g, '"');
+    servers2 = JSON.parse("["+servers2+"]");
+    console.log(servers2);
+
+    pass2 = JSON.parse("["+pass2+"]");
+    console.log(pass2);
+
+    fail2 = JSON.parse("["+fail2+"]");
+    console.log(fail2);
+
+    total2 = JSON.parse("["+total2+"]");
+    console.log(total2);
+
+    var sum = 0;
+    var sum_f=0
+    var sum1=0;
+    var sum2=0;
+    var sum_f1=0;
+    var sum_f2=0;
+    var i=0;
+    var t=0;
+    var t1=0;
+    var t2=0;
+    var h1="Daily Execution Report for"+" "+m+" "+g1[1]+","+g1[2];
+    var h2="Weekly Execution Report for"+" "+m+" "+g2[1]+"-"+g1[1]+","+g1[2];
+    var p2="Weekly Execution Report for"+" "+m+'\n';
+    var p3=g2[0]+"-"+g1[0]+","+g1[2];
+    var h3="Monthly Execution Report for"+" "+m;
+    document.getElementById("h1").innerHTML = h1;
+    document.getElementById("h2").innerHTML = h2;
+    document.getElementById("h3").innerHTML = h3;
+    document.getElementById("t1").innerHTML = h1;
+    document.getElementById("t2").innerHTML = h2;
+    document.getElementById("t3").innerHTML = h3;
+    for(i=0;i<pass.length;i++)
+    {
+        sum+=pass[i];
+        sum_f+=fail[i];
+        t+=total[i];
+
+    }
+     for(i=0;i<pass1.length;i++)
+    {
+        sum1+=pass1[i];
+        sum_f1+=fail1[i];
+        t1+=total1[i];
+
+    }
+     for(i=0;i<pass2.length;i++)
+    {
+        sum2+=pass2[i];
+        sum_f2+=fail2[i];
+        t2+=total2[i];
+    }
+    
+    console.log(servers2.length);
+    for(i=0;i<servers.length;i++)
+    {
+        rowinsert(i,servers[i],pass[i],fail[i],total[i],"myTable");
+   
+    }
+    rowinsert(i,'TOTAL',sum,sum_f,t,"myTable");
+    for(i=0;i<servers1.length;i++)
+    {
+      rowinsert(i,servers1[i],pass1[i],fail1[i],total1[i],"myTable1");
+    }
+    rowinsert(i,'TOTAL',sum1,sum_f1,t1,"myTable1");
+    for(i=0;i<servers2.length;i++)
+    { 
+      rowinsert(i,servers2[i],pass2[i],fail2[i],total2[i],"myTable2");
+    }
+    rowinsert(i,"TOTAL",sum2,sum_f2,t2,"myTable2");
+    function rowinsert(i,server,pass,fail,total,div) 
+    {
+      var table = document.getElementById(div);
+      var row = table.insertRow(i);
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+      var cell5 = row.insertCell(4);
+      var cell6 = row.insertCell(5);
+      console.log(server);
+      cell1.innerHTML = server;
+      cell2.innerHTML = total;
+      cell3.innerHTML = pass;
+      cell4.innerHTML = fail;
+      cell5.innerHTML = ((pass/total)*100).toFixed(0);
+      cell6.innerHTML = ((fail/total)*100).toFixed(0);
+       if(server == 'TOTAL')
+      {
+      cell1.className = 'yourClass';
+      cell2.className = 'yourClass';
+      cell3.className = 'yourClass';
+      cell4.className = 'yourClass';
+      cell5.className = 'yourClass';
+      cell6.className = 'yourClass';
+
+      }
+    }
+    
+    var per1=((sum/t)*100).toFixed(0);
+    var per2=((sum1/t1)*100).toFixed(0);
+    var per3=((sum2/t2)*100).toFixed(0);
+    console.log(per1);
+    var pe1=100-per1;
+    var pe2=100-per2;
+    var pe3=100-per3;
+    per1=per1+'%';
+    per2=per2+'%';
+    per3=per3+'%';
+    pe1=pe1+'%';
+    pe2=pe2+'%';
+    pe3=pe3+'%';
+    console.log(sum);
+    if(total.length == 0 && total1.length == 0 && total2.length == 0)
+    {
+    console.log("length");
+    console.log(total.length);
+    var msg="No Data Available Please Select another date";
+      $('#daily').hide();
+      $('#week').hide();
+      $('#monthly').hide();
+     
+    showNotification('top','center','error_outline','danger',msg);
+    }
+    else if(total1.length == 0 && total.length == 0)
+    {
+    console.log("length");
+    console.log(total.length);
+    var msg="Daily and Weekly Data not Available For the selected Date";
+      $('#daily').hide();
+      $('#week').hide();
+      
+    showNotification('top','center','error_outline','danger',msg);
+    }
+    else if(total.length == 0)
+    {
+    console.log("length");
+    console.log(total.length);
+    var msg="Daily Data Not Available Please Select another date";
+      $('#daily').hide();
+      $('#table').hide();
+      //$('#week').hide();
+    showNotification('top','center','error_outline','danger',msg);
+    }
+    else{
+
+    }
+    if(total2.length==0) 
+    {
+      var msg="Monthly Data Not Available Please Select another date";
+      $('#monthly').hide();
+    
+      //$('#week').hide();
+    showNotification('top','center','error_outline','danger',msg);
+    }
+    
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+
+    var myChart = echarts.init(document.getElementById('dailySalesChart'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //rotate: config.rotate,
+            //formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data : servers,
+                axisLabel:{rotate:20}         
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+    var myChart = echarts.init(document.getElementById('dailySalesChart1'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+           // rotate: config.rotate,
+            //formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data : servers1,
+                axisLabel:{rotate:20}  
+
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass1
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail1
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total1
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+    var myChart = echarts.init(document.getElementById('dailySalesChart2'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //rotate: config.rotate,
+           // formatter: '{c}  {name|{a}}',
+            fontSize: 16,
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    var option = {
+        color: ['#48a44c', '#e73d3a', '#0c84eb'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Pass', 'Fail', 'Total']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data : servers2,
+                axisLabel:{rotate:20}        
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Pass',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: pass2
+            },
+            {
+                name: 'Fail',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: fail2
+            },
+            {
+                name: 'Total',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: total2
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+
+    var pieChart = echarts.init(document.getElementById('dailySalesPieChart'));
+    pieOption = {
+        title : {
+            //text: 'Daily Run',
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                label: {
+                  normal: {
+                    position: 'inner'
+                  }
+                },
+                center: ['50%', '60%'],
+                data:[
+                    {value:sum, name:per1,color:'green'},
+                    {value:sum_f, name:pe1},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart.setOption(pieOption);
+
+    var pieChart = echarts.init(document.getElementById('dailySalesPieChart1'));
+    pieOption = {
+        title : {
+            //text: 'Daily Run',
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                label: {
+                  normal: {
+                    position: 'inner'
+                  }
+                },
+                center: ['50%', '60%'],
+                data:[
+                    {value:sum1, name:per2,color:'green'},
+                    {value:sum_f1, name:pe2},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart.setOption(pieOption);
+     var pieChart = echarts.init(document.getElementById('dailySalesPieChart2'));
+    pieOption = {
+        title : {
+            //text: 'Daily Run',
+            //subtext: date,
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['Pass','Fail']
+        },
+        series : [
+            {
+                name: 'Results',
+                type: 'pie',
+                radius : '55%',
+                label: {
+                  normal: {
+                    position: 'inner'
+                  }
+                },
+                center: ['50%', '60%'],
+                data:[
+                    {value:sum2, name:per3,color:'green'},
+                    {value:sum_f2, name:pe3},
+                ],
+                color:['#48a44c', '#e73d3a'],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    pieChart.setOption(pieOption);
+    $('.freqDropdown').click(function() {
+      console.log('clicked');
+      console.log($('#btnFreq').text());
+      var freq=$(this).text();
+      console.log(freq);
+      $('#btnFreq').text($(this).text());
+      if(freq=='Graph'){
+        $('#table').hide();
+        $('#table1').hide();
+        $('#table2').hide();
+        $('#daily').fadeIn(1000);
+        $('#week').fadeIn(1000);
+        $('#monthly').fadeIn(1000);
+        if(total.length == 0 && total1.length == 0 && total2.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="No Data Available Please Select another date";
+            $('#daily').hide();
+            $('#week').hide();
+            $('#monthly').hide();
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else if(total1.length == 0 && total.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="Daily and Weekly Data not Available For the selected Date";
+            $('#daily').hide();
+            $('#week').hide();
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else if(total.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="Daily Data not Available Please Select another date";
+            $('#daily').hide();
+            $('#table').hide();
+            //$('#week').hide();
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else{
+
+          }
+          if(total2.length == 0)
+          {
+            var msg="Monthly Data not Available Please Select another date";
+            $('#table2').hide();
+            $('#monthly').hide();
+          }
+          }
+      else
+      {
+        $('#daily').hide();
+        $('#week').hide();
+        $('#monthly').hide();
+        $('#table').fadeIn(1000);
+        $('#table1').fadeIn(1000);
+        $('#table2').fadeIn(1000);
+        if(total.length == 0 && total1.length == 0 && total2.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="No Data Available Please Select another date";
+            $('#table').hide();
+            $('#table1').hide();
+            $('#table2').hide();
+          
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else if(total1.length == 0 && total.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="Daily and Weekly Data not Available For the selected Date";
+            $('#table1').hide();
+            $('#table2').hide();
+            
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else if(total.length == 0)
+          {
+          console.log("length");
+          console.log(total.length);
+          var msg="Daily Data Available Please Select another date";
+            $('#table').hide();
+            //$('#week').hide();
+          showNotification('top','center','error_outline','danger',msg);
+          }
+          else{
+
+          }
+          if(total2.length == 0)
+          {
+            var msg="Monthly Data not Available Please Select another date";
+            $('#table2').hide();
+            $('#monthly').hide();
+          }
+        
+      }
+    });
+    $('#table').hide();
+    $('#table1').hide();
+    $('#table2').hide();
+    

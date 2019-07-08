@@ -1,0 +1,17 @@
+extends layout
+block content
+            .row
+              .col-md-12
+                .card
+                  .card-header(data-background-color="red")
+                    h3.center.title Automated Testcases 
+                  .card-content.table-responsive.table-full-width
+                    table.table
+                      thead.text-danger
+                        th Functionality
+                        th Manual Testcase Name
+                      tbody
+                      -for(var prop in response)
+                        tr
+                          td #{response[prop].FUNCTIONALITY}
+                          td #{response[prop].MANUAL_TC_NAME}

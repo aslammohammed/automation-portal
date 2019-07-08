@@ -1,0 +1,426 @@
+extends layout
+block content
+  .row
+    .col-md-12
+      h3 Continous Delivery Dashboard
+      form#formId(action='/reports/failure',method='POST', enctype='form-data')
+        .col-md-2 
+          input#datepicker(type='text',value='#{date}',name='datetext',placeholder= '#{date}',style='margin:10px;padding:8px')
+          p.category
+      .card#graph
+          .card-header
+            h4.card-title Cumulative Failure Report (weekly)
+          .card-plain
+            .ct-chart#failureChart(style='height:360px')
+      .card#graph
+          .card-header
+            h4.card-title Average Failure Report (weekly failure count/ iteration)
+          .card-plain
+            .ct-chart#avgFailureChart(style='height:360px')
+    .col-md-12#scriptFailureSection
+    .col-md-12#scriptFailureSection1
+
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+  script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js')
+  script(type='text/javascript').
+    $(function(){
+        $( "#datepicker" ).datepicker();
+        });
+    $('#datepicker').datepicker({
+    onSelect : function (dateText, inst) {
+    $('#formId').submit();
+    }});
+
+    
+  script.
+    //bar chart
+    
+    var title = !{JSON.stringify(title)};
+    //var date = !{JSON.stringify(date)};
+    //var pass = !{JSON.stringify(pass)};
+    //var fail = !{JSON.stringify(fail)};
+    //var total = !{JSON.stringify(total)};
+    //var dailyDataString = !{JSON.stringify(dailyData)};
+    var data = !{JSON.stringify(data)};
+    //response = JSON.parse(response);
+    console.log("data:"+data);
+    //date = date.replace(/'/g, '"');
+    //date = JSON.parse("["+date+"]");
+    //console.log(date);
+   
+    //pass = JSON.parse("["+pass+"]");
+    //console.log(pass);
+
+    //fail = JSON.parse("["+fail+"]");
+    //console.log(fail);
+
+    //total = JSON.parse("["+total+"]");
+    //console.log(total);
+
+    var servers = [];
+    var week1 = [];
+    var week2 = [];
+    var week3 = [];
+    var week4 = [];
+    var week1Avg = [];
+    var week2Avg = [];
+    var week3Avg = [];
+    var week4Avg = [];
+
+    var failureData = data.failureData;
+    console.log("FD:"+failureData);
+    for(var i=failureData.length-1;i>=0;i--){
+        entry = failureData[i];
+        console.log("entry:"+entry);
+        servers.push(entry.server);
+        var serverFailureData = entry.failureData;
+        week4.push(serverFailureData[0].failureCount);
+        week3.push(serverFailureData[1].failureCount);
+        week2.push(serverFailureData[2].failureCount);
+        week1.push(serverFailureData[3].failureCount);
+
+        week4Avg.push(Math.round(serverFailureData[0].failureCount/serverFailureData[0].iteration));
+        week3Avg.push(Math.round(serverFailureData[1].failureCount/serverFailureData[1].iteration));
+        week2Avg.push(Math.round(serverFailureData[2].failureCount/serverFailureData[2].iteration));
+        week1Avg.push(Math.round(serverFailureData[3].failureCount/serverFailureData[3].iteration));
+
+        
+    }
+
+    var weeklyDate = [];
+    var weeklyPass = [];
+    var weeklyFail = [];
+    var weeklyTotal = [];
+    /*
+    var weeklyData = response.weeklyData;
+    console.log("WD:"+weeklyData);
+    for(var i=0;i<=weeklyData.length;i++){
+        entry = weeklyData[i];
+        console.log("entry:"+entry);
+        weeklyDate.push(entry.week);
+        weeklyPass.push(entry.pass);
+        weeklyFail.push(entry.fail);
+        weeklyTotal.push(entry.total);
+    }
+    */
+
+    /*
+        for (var entry in dailyData){
+          console.log("entry:"+entry);
+          dailyDate.push(entry.date);
+          dailyPass.push(entry.pass);
+          dailyFail.push(entry.fail);
+          dailyTotal.push(entry.total);
+        }
+        */
+
+
+  script(src='/js/echarts.min.js')
+  script(type='text/javascript').
+    var failureChart = echarts.init(document.getElementById('failureChart'));
+    var avgFailureChart = echarts.init(document.getElementById('avgFailureChart'));
+    //var weeklyChart = echarts.init(document.getElementById('weeklyChart'));
+    var config = {
+        rotate: 90,
+        align: 'center',
+        verticalAlign: 'middle',
+        position: 'top',
+        distance: 15,
+    };
+    var labelOption = {
+        normal: {
+            show: true,
+            position: config.position,
+            distance: config.distance,
+            align: config.align,
+            verticalAlign: config.verticalAlign,
+            //horizontalAlign: config.horizontalAlign
+            //rotate: config.rotate,
+            formatter: '{c}',
+            fontSize: 16,
+            //fontColor: 'black',
+            rich: {
+                name: {
+                    color: '#fff'
+                }
+            }
+        }
+    };
+
+    function setChartOption(servers,week1,week2,week3,week4){
+      var option = {
+        color: ['#e73d3a', '#e73d3a', '#e73d3a'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['Week1', 'Week2', 'Week3','Week4']
+        },
+        toolbox: {
+            show: false,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: {show: true},
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {show: false},
+                //data: ['Desktop1', 'Desktop2', 'Desktop3', 'Desktop4', 'Desktop5']
+                data :servers,
+                axisLabel:{rotate:20}
+              }
+
+                //data : labels            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Week1',
+                type: 'bar',
+                barGap: 0.2,
+                label: labelOption,
+                //data: [320, 332, 301, 334, 390]
+                data: week1
+            },
+            {
+                name: 'Week2',
+                type: 'bar',
+                label: labelOption,
+                //data: [220, 182, 191, 234, 290]
+                data: week2
+            },
+            {
+                name: 'Week3',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: week3
+            },
+            {
+                name: 'Week4',
+                type: 'bar',
+                label: labelOption,
+                //data: [150, 232, 201, 154, 190]
+                data: week4
+            }
+        ]
+      };
+
+      return option;
+    }
+    
+    failureChart.setOption(setChartOption(servers,week1,week2,week3,week4));
+    avgFailureChart.setOption(setChartOption(servers,week1Avg,week2Avg,week3Avg,week4Avg));
+
+    //script failure data
+    
+    function prepareFailureReport(data){
+      var content = '';
+      console.log("Scriptdata:"+data.length)
+      for(var i=0;i<data.length;i++){
+
+        var entry = data[i];
+        content+='<tr>';
+        content+='<td>'+entry.functionality+'</td>';
+        content+='<td>'+entry.testcaseName+'</td>';
+        content+='<td>'+entry.server+'</td>';
+        
+
+        var failedStages=entry.failedStages;
+        
+        for(var j=failedStages.length-1;j>=0;j--){
+          var subEntry = failedStages[j];
+          content+='<td>'+subEntry.stage+'</td>';
+        }
+        
+        content+='</tr>';
+      }
+      console.log("content:"+content);	 
+      var table=
+                  '<div class="card">'+
+                    '<div class="card-header" data-background-color="red">'+
+                      '<h4 class="title">Script Level Failure Report</h4>'+
+                        '<p class="category">Day columns indicates the stage in which the script failed for that day</p>'+
+                    '</div>'+
+                    '<div class="card-content table-responsive">'+
+                      '<table class="table">'+
+                        '<tbody>'+
+                          '<tr>'+
+                            '<th><center>Functionality</center></th>'+
+                            '<th>Test Case Name</th>'+
+                            '<th>Automation Server</th>'+
+                            '<th>Day 1</th>'+
+                            '<th>Day 2</th>'+
+                            '<th>Day 3</th>'+
+                            '<th>Day 4</th>'+
+                            '<th>Day 5</th>'+
+                            '<th>Day 6</th>'+
+                            '<th>Day 7</th>'+
+                          '</tr>'+
+                          content+
+                        '</tbody>'+
+                      '<table>'+
+                    '</div>'+
+                  '</div>';
+                
+      return table;
+    }
+
+    function prepareFailureReportTab(data){
+      var tabbedContent='';
+      var tabs='';
+      var tableContent='';
+
+      var currentServer='', prevServer='';
+      for(var i=0;i<data.length;i++){
+        //for(var i=0;i<15;i++){
+
+        var entry = data[i];
+        currentServer=entry.server
+         
+        
+        
+        if(currentServer!=prevServer){
+
+
+          tabs+='<li class="'+(i==0?'active':'')+'">'+
+                '<a href="#'+currentServer+'" data-toggle="tab">'+
+                    '<i class="material-icons">desktop_mac</i> '+currentServer+
+                    '<div class="ripple-container"></div>'+
+                '</a>'+
+            '</li>';
+
+          console.log("CS:"+currentServer);
+          console.log("PS:"+prevServer);
+          var row='';
+          var allSameStage=true;
+          row+='<td>'+entry.functionality+'</td>';
+          row+='<td>'+entry.testcaseName+'</td>';
+          var failedStages=entry.failedStages;
+          var stage=failedStages[failedStages.length-1].stage;
+          for(var j=failedStages.length-1;j>=0;j--){
+            var subEntry = failedStages[j];
+            
+            row+='<td>'+subEntry.stage+'</td>';
+            if(stage!=subEntry.stage){
+              allSameStage=false;
+            }
+            var stage=subEntry.stage;
+          }
+          row='<tr bgcolor="'+(allSameStage==true?'#FF0000':'')+'">'+row+'</tr>';
+            //row='<row bgcolor="#FF0000">'+row+'</tr>';
+
+          if(i!=0){
+            tableContent+='</tbody>'+
+                      '</table>'+
+                    '</div>';
+                  
+          }
+
+          tableContent+='<div class="tab-pane'+(i==0?' active':'')+'" id="'+currentServer+'">'+
+                    '<table class="table">'+
+                        '<tbody>'+
+                          '<tr>'+
+                            '<th><center>Functionality</center></th>'+
+                            '<th><center>Failed Test Case Name</center></th>'+
+                            '<th>Day 1</th>'+
+                            '<th>Day 2</th>'+
+                            '<th>Day 3</th>'+
+                            '<th>Day 4</th>'+
+                            '<th>Day 5</th>'+
+                            '<th>Day 6</th>'+
+                            '<th>Day 7</th>'+
+                          '</tr>'+
+                          row;
+        }else if(currentServer==prevServer){
+          var allSameStage=true;
+          var row='';
+          row+='<td>'+entry.functionality+'</td>';
+          row+='<td>'+entry.testcaseName+'</td>';
+          var failedStages=entry.failedStages;
+
+          var stage=failedStages[failedStages.length-1].stage;
+          for(var j=failedStages.length-1;j>=0;j--){
+            var subEntry = failedStages[j];
+            
+            if(stage!=subEntry.stage){
+              allSameStage=false;
+            }
+            row+='<td>'+subEntry.stage+'</td>';
+            stage=subEntry.stage;
+          }
+          row='<tr bgcolor="'+(allSameStage==true?'#FF0000':'')+'">'+row+'</tr>';
+          //row='<row bgcolor="#FF0000">'+row+'</tr>';
+
+          tableContent+=row;
+        }
+        prevServer=currentServer;
+      }
+      tabs='<div class="card-header" data-background-color="red">'+
+              '<div class="nav-tabs-navigation">'+
+                  '<div class="nav-tabs-wrapper">'+
+                    '<span class="nav-tabs-title"><b>Servers:</b></span>'+	
+                      '<ul class="nav nav-tabs" data-tabs="tabs">'+
+                        tabs+
+                      '</ul>'+
+                    '</div>'+
+                  '</div>'+
+              '</div>';
+      tableContent+='</tbody>'+
+                      '</table>'+
+                    '</div>';
+                  
+      tableContent='<div class="card-content">'+
+                    '<div class="tab-content">'+
+                      tableContent+
+                    '</div>'+
+                  '</div>';
+      tabbedContent='<div class="">'+
+                    
+                        '<div class="card card-nav-tabs">'+
+                        tabs+
+                        tableContent+
+                      '</div>'+
+                    
+                  '</div>';
+      console.log("TabbedContent:"+tabbedContent);
+      return tabbedContent;
+
+    }
+
+    if(jQuery.isEmptyObject(data.scriptFailureData)){
+
+      var msg="No data available for selected date, please select another date.";
+
+      showNotification('top','center','error_outline','info',msg);
+    }else{
+      /*
+      var table = prepareFailureReport(data.scriptFailureData);
+      $(table).hide().appendTo('#scriptFailureSection').fadeIn(500);
+      $(table).fadeIn(1000);
+      */
+      
+      var tabbedContent = prepareFailureReportTab(data.scriptFailureData);
+      $(tabbedContent).hide().appendTo('#scriptFailureSection1').fadeIn(500);
+      $(tabbedContent).fadeIn(1000);
+      
+    }
+    //weeklyChart.setOption(setChartOption(weeklyDate,weeklyPass,weeklyFail,weeklyTotal));
+
+    

@@ -1,0 +1,192 @@
+doctype html
+html(lang='en')
+  head
+      meta(charset='utf-8')
+      link(rel='apple-touch-icon', sizes='76x76', href='/img/apple-icon.png')
+      link(rel='icon', type='image/png', href='/img/favicon.png')
+      meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+      title #{title}
+      meta(content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0', name='viewport')
+      meta(name='viewport', content='width=device-width')
+      
+      
+      // Bootstrap core CSS     
+      
+      block head
+        link(href='../css/bootstrap.min.css', rel='stylesheet')
+        //  Material Dashboard CSS    
+        link(href='../css/material-dashboard.css?v=1.2.0', rel='stylesheet')
+        //  CSS for Demo Purpose, don't include it in your project     
+        //link(href='../css/demo.css', rel='stylesheet')
+        link(href='../stylesheets/style.css', rel='stylesheet')
+        //     Fonts and icons     
+        link(href='http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css', rel='stylesheet')
+        link(href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons', rel='stylesheet', type='text/css')
+        link(href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/base/jquery-ui.css', rel='stylesheet')
+        
+  body
+    .wrapper
+      .sidebar(data-color='red', data-image='/img/sidebar-2.jpg')
+        //          
+                  Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+          
+                  Tip 2: you can also add an image using data-image tag
+              
+        .logo
+          img(src='/img/continousdelivery.png', height='70', width='190')
+        .sidebar-wrapper
+          ul.nav
+            li(class=(title==='Dashboard' ? 'active' : ''))
+              a(href='/dashboard')
+                i.material-icons dashboard
+                p CIT Dashboard
+            li(class=(title==='EIT Dashboard' ? 'active' : ''))
+              a(href='/dashboard/eit')
+                i.material-icons perm_identity
+                p EIT Dashboard
+            li(class=(title==='PL Dashboard' ? 'active' : ''))
+              a(href='/dashboard/prod_live')
+                i.material-icons dashboard
+                p PL Dashboard
+
+            //li(class=(title==='Environment' ? 'active' : ''))
+              a(href='/data/environment')
+                i.material-icons perm_identity
+                p Producton support
+            li(class=(title==='Execution Trend' ? 'active' : ''))
+              a(href='/execution-trend')
+                i.material-icons assessment
+                p Execution Trend Report
+            li(class=(title==='Live Result' ? 'active' : ''))
+              a(href='/results/liveResult')
+                i.material-icons schedule
+                p Live Execution Result
+            //li(class=(title==='Average Execution' ? 'active' : ''))
+              a(href='/avgexe')
+                i.material-icons toc
+                p Average Execution 
+            li(class=(title==='Failure Report' ? 'active' : ''))
+              a(href='/reports/failure')
+                i.material-icons report_problem
+                p Failure Report
+            //li(class=(title==='Script Delivery Report' ? 'active' : ''))
+              a(href='/script')
+                i.material-icons library_books
+                p Script Delivery Report
+            li(class=(title==='Box Trend' ? 'active' : ''))
+              a(href='/box-trend')
+                i.material-icons trending_up
+                p Automation Box Trend
+            
+            li(class=(title==='Testcases' ? 'active' : ''))
+              a(href='/scriptlist')
+                i.material-icons assignment
+                p Scripts Summary Report
+            li
+              a(href='#')
+                i
+                p
+            
+
+            //li
+              a(href='./typography.html')
+                i.material-icons library_books
+                p Typography
+            //li
+              a(href='./icons.html')
+                i.material-icons bubble_chart
+                p Icons
+            //li
+              a(href='./maps.html')
+                i.material-icons location_on
+                p Maps
+            //li
+              a(href='./notifications.html')
+                i.material-icons.text-gray notifications
+                p Notifications
+            //li.active-pro
+              a(href='upgrade.html')
+                i.material-icons power
+                p Powered by CIT
+      .main-panel(style='margin-top:0px;')
+        nav.navbar.navbar-transparent.navbar-absolute
+          .container-fluid
+            .navbar-header
+              button.navbar-toggle(type='button', data-toggle='collapse')
+                span.sr-only Toggle navigation
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+              //a.navbar-brand(href='#') Material Dashboard
+            //.collapse.navbar-collapse
+              ul.nav.navbar-nav.navbar-right
+                li
+                  a.dropdown-toggle(href='#pablo', data-toggle='dropdown')
+                    i.material-icons dashboard
+                    p.hidden-lg.hidden-md Dashboard
+                li.dropdown
+                  a.dropdown-toggle(href='#', data-toggle='dropdown')
+                    i.material-icons notifications
+                    span.notification 5
+                    p.hidden-lg.hidden-md Notifications
+                  ul.dropdown-menu
+                    li
+                      a(href='#') Mike John responded to your email
+                    li
+                      a(href='#') You have 5 new tasks
+                    li
+                      a(href='#') You're now friend with Andrew
+                    li
+                      a(href='#') Another Notification
+                    li
+                      a(href='#') Another One
+                li
+                  a.dropdown-toggle(href='#pablo', data-toggle='dropdown')
+                    i.material-icons person
+                    p.hidden-lg.hidden-md Profile
+              form.navbar-form.navbar-right(role='search')
+                .form-group.is-empty
+                  input.form-control(type='text', placeholder='Search')
+                  span.material-input
+                button.btn.btn-white.btn-round.btn-just-icon(type='submit')
+                  i.material-icons search
+                  .ripple-container
+        .content(style='margin-top:0px;')
+          .container-fluid    
+          block content
+
+        footer.footer
+          .container-fluid
+            nav.pull-left
+              ul
+                li
+                  a(href='#') Home
+                li
+                  a(href='#') EIT OTM Export Tool
+                li
+                  a(href='#') EIT Portal
+            p.copyright.pull-right
+              | ©
+              script document.write(new Date().getFullYear())
+              a(href='http://www.oracle.com') Oracle
+    block footerScripts
+      script(src='/js/jquery-3.2.1.min.js', type='text/javascript')
+      script(src='/js/bootstrap.min.js', type='text/javascript')
+      script(src='/js/material.min.js', type='text/javascript')
+      //  Charts Plugin 
+      script(src='/js/chartist.min.js')
+
+      
+      //  Dynamic Elements plugin 
+      script(src='/js/arrive.min.js')
+      //  PerfectScrollbar Library 
+      script(src='/js/perfect-scrollbar.jquery.min.js')
+      //  Notifications Plugin    
+      script(src='/js/bootstrap-notify.js')
+      
+      // Material Dashboard javascript methods 
+      script(src='/js/material-dashboard.js?v=1.2.0')
+      // Material Dashboard DEMO methods, don't include it in your project! 
+    
+    
+  //   Core JS Files   
